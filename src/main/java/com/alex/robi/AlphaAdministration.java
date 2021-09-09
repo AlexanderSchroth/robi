@@ -10,9 +10,33 @@ public class AlphaAdministration implements Adminstration {
 
     @Override
     public void handshake() {
-        communication.send(new Payload.Builder()
+        Payload build = new Payload.Builder()
             .withCommand(Command.BTHandshake)
-            .withParameters(Parameters.parameters(Parameter.of(0x00))).build());
+            .withParameters(Parameters.parameters(Parameter.of(0x00))).build();
+        communication.send(build, messages -> null);
     }
 
+    @Override
+    public void playStop() {
+        Payload build = new Payload.Builder()
+            .withCommand(Command.PlayStop)
+            .withParameters(Parameters.parameters(Parameter.of(0x00))).build();
+        communication.send(build, messages -> null);
+    }
+
+    @Override
+    public RobotState state() {
+        Payload send = new Payload.Builder()
+            .withCommand(Command.ReadingRobotState)
+            .withParameters(Parameters.parameters(Parameter.of(0x00))).build();
+
+        return communication.send(send, message -> {
+            return new RobotState(
+                SoundState.fromRobotStateResponse(message),
+                PlayState.fromRobotStateResponse(message),
+                Volume.fromRobotState(message),
+                ServoIndicateState.fromRobotState(message),
+                TfCardInsertion.fromRobotState(message));
+        });
+    }
 }

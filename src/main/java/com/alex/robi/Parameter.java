@@ -1,5 +1,8 @@
 package com.alex.robi;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
 public class Parameter {
 
     private int value;
@@ -10,6 +13,32 @@ public class Parameter {
 
     public int value() {
         return value;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj.getClass() != this.getClass()) {
+            return false;
+        }
+        Parameter that = (Parameter) obj;
+        return new EqualsBuilder()
+            .append(this.value, that.value)
+            .build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+            .append(value)
+            .toHashCode();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("0x%1X", value) + ", (int)" + value;
     }
 
     public static Parameter of(int value) {

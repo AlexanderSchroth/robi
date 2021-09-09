@@ -3,7 +3,7 @@ package com.alex.robi;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class AlphaConnection implements Connection {
+public class AlphaConnection implements Sending {
 
     private OutputStream outputStream;
 
@@ -17,5 +17,9 @@ public class AlphaConnection implements Connection {
             outputStream.write(message[i]);
         }
         outputStream.flush();
+    }
+
+    public void close() throws IOException {
+        outputStream.close();
     }
 }

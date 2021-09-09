@@ -1,9 +1,12 @@
 package com.alex.robi;
 
+import com.alex.robi.AlphaCommunication.ResponseWaiter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -11,7 +14,7 @@ class ResponseReader implements Runnable {
 
     private final static Logger LOG = LoggerFactory.getLogger(ResponseReader.class);
 
-    private InputStream openDataInputStream;
+    private InputStream inputStream;
 
     private boolean commandHeader1Received = false;
     private boolean commandHeader2Received = false;
@@ -22,14 +25,27 @@ class ResponseReader implements Runnable {
 
     private boolean run;
 
-    ResponseReader(InputStream openDataInputStream) throws IOException {
-        this.openDataInputStream = openDataInputStream;
+    private Map<Command, ResponseWaiter> waiters;
+
+    ResponseReader(InputStream inputStream) {
+        this.inputStream = inputStream;
         this.run = true;
         this.partialMessage = new ArrayList<>();
+        this.waiters = new HashMap<>();
     }
 
-    public void stop() {
+    public ResponseWaiter waitFor(Command c) {
+        if (waiters.containsKey(c)) {
+            throw new IllegalArgumentException("Someone already waits for <" + c + "> to return");
+        }
+        ResponseWaiter responseWaiter = new ResponseWaiter(c);
+        waiters.put(c, responseWaiter);
+        return responseWaiter;
+    }
+
+    public void stop() throws IOException {
         run = false;
+        inputStream.close();
     }
 
     @Override
@@ -47,11 +63,11 @@ class ResponseReader implements Runnable {
     }
 
     private void read() throws IOException {
-        int available = openDataInputStream.available();
+        int available = inputStream.available();
         int[] b = new int[available];
 
         for (int i = 0; i < b.length; i++) {
-            b[i] = openDataInputStream.read();
+            b[i] = inputStream.read();
             if (b[i] == Message.COMMAND_HEADER_1) {
                 commandHeader1Received = true;
             }
@@ -65,11 +81,20 @@ class ResponseReader implements Runnable {
 
             if (commandHeader1Received && commandHeader2Received && endCommandReceived) {
                 Message message = new Message.FromBytesBuilder().withBytes(partialMessage.stream().mapToInt(integer -> integer).toArray()).build();
+
+                ResponseWaiter responseWaiter = waiters.get(message.command());
+                if (responseWaiter == null) {
+                    LOG.debug("No one waits for answer of command {}", message.command());
+                } else {
+                    if (responseWaiter.add(message)) {
+                        waiters.remove(message.command());
+                    }
+                }
+
                 partialMessage.clear();
                 commandHeader1Received = false;
                 commandHeader2Received = false;
                 endCommandReceived = false;
-                LOG.debug("received {}", message);
             }
         }
     }

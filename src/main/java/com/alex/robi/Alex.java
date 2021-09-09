@@ -23,16 +23,21 @@ public class Alex {
         InputStream inputStream = open3.openInputStream();
 
         AlphaConnection connection = new AlphaConnection(outputStream);
-        Communication communication = new AlphaCommunication(connection);
+        Communication communication = new AlphaCommunication(connection, inputStream);
 
         Movement movement = new AlphaMovement(communication);
         Adminstration administration = new AlphaAdministration(communication);
 
-        ResponseReader target = new ResponseReader(inputStream);
-        new Thread(target).start();
-
         // sleep();
         administration.handshake();
+        administration.playStop();
+        RobotState state = administration.state();
+        System.out.println(state);
+        Offset readOffset1 = movement.readOffset(Servo.LEFT_ARM);
+        System.out.println(readOffset1);
+        movement.offset(Servo.LEFT_ARM, new Offset(130));
+        Offset readOffset2 = movement.readOffset(Servo.LEFT_ARM);
+        System.out.println(readOffset2);
 
         // sleep();
         // movement.move(Servo.LEFT_SHOULDER, new Offset(), new Time());
@@ -51,14 +56,7 @@ public class Alex {
         console.addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosed(WindowEvent event) {
-                try {
-                    target.stop();
-                    outputStream.close();
-                    inputStream.close();
-                    open3.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                communication.close();
             }
         });
     }
@@ -83,7 +81,7 @@ public class Alex {
 
                 @Override
                 public void keyPressed(KeyEvent e) {
-                    movement.offset(Servo.LEFT_ELBOW, new Offset());
+                    movement.offset(Servo.LEFT_ELBOW, new Offset(1));
                 }
             });
 

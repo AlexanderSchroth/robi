@@ -6,6 +6,8 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.text.MessageFormat;
 import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -30,7 +32,7 @@ public class Message {
     private Message() {
     }
 
-    public void send(Connection connection) throws IOException {
+    public void send(Sending connection) throws IOException {
         int[] message = new int[FIXED_PARTS + parameters.length];
         int part = 0;
         message[part++] = commandHeader1;
@@ -45,6 +47,17 @@ public class Message {
         message[part++] = endCharacter;
 
         connection.send(message);
+    }
+
+    public Command command() {
+        return Command.findByValue(command);
+    }
+
+    public Parameter[] parameters() {
+        return IntStream.of(parameters)
+            .mapToObj(i -> Parameter.of(i))
+            .collect(Collectors.toList())
+            .toArray(new Parameter[0]);
     }
 
     @Override
@@ -109,7 +122,7 @@ public class Message {
         return sb.toString();
     }
 
-    private static String dump(int i) {
+    public static String dump(int i) {
         return String.format("0x%1X", i) + ", (int)" + i;
     }
 
