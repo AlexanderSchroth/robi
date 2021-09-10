@@ -17,9 +17,11 @@ public interface Movement {
         }
     }
 
-    MoveResponse move(Servo s, Angle angle, Time time);
+    void move(Servo s, Angle angle, Time time);
 
     OffsetResponse offset(Servo servo, Offset offset);
 
     Offset readOffset(Servo servo);
+
+    void servoIndicators(boolean on);
 }

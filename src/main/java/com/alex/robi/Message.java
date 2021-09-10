@@ -104,7 +104,7 @@ public class Message {
         for (int i = 0; i < parameters.length; i++) {
             message.put("parameter" + i, dump(parameters[i]));
         }
-        message.put("parametersAsString", parametersAsString());
+        message.put("parametersAsString", parametersAsString(parameters));
         message.put("check", dump(check));
         message.put("endCharacter", dump(endCharacter));
         try {
@@ -114,7 +114,7 @@ public class Message {
         }
     }
 
-    public String parametersAsString() {
+    public static String parametersAsString(int[] parameters) {
         StringBuffer sb = new StringBuffer();
         for (int intChar : parameters) {
             sb.append(Character.toChars(intChar));

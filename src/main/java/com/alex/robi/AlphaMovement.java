@@ -9,14 +9,26 @@ public class AlphaMovement implements Movement {
     }
 
     @Override
-    public MoveResponse move(Servo servo, Angle angle, Time time) {
-        return communication.send(new Payload.Builder()
+    public void move(Servo servo, Angle angle, Time time) throws MoveException {
+        communication.send(new Payload.Builder()
             .withCommand(Command.ControllingTheMotionOfASingleServo)
             .withParameters(Parameters.parameters(
                 servo.asParameter(),
                 time.asParameter(),
                 angle.asParameter()))
-            .build(), messages -> new MoveResponse(messages));
+            .build(), messages -> {
+                int response = messages.get(0).parameters()[1].value();
+                if (response == 0X00) {
+
+                } else if (response == 0x01) {
+                    throw new MoveException("wrong servo ID");
+                } else if (response == 0x02) {
+                    throw new MoveException("allow servo angle acess");
+                } else if (response == 0x03) {
+                    throw new MoveException("no reply from servo");
+                }
+                return "success";
+            });
     }
 
     @Override
@@ -39,6 +51,21 @@ public class AlphaMovement implements Movement {
                 Parameters.parameters(
                     servo.asParameter()))
             .build(), Offset::fromReadOffest);
+    }
+
+    @Override
+    public void servoIndicators(boolean on) {
+        Parameter p;
+        if (on) {
+            p = Parameter.of(0x01);
+        } else {
+            p = Parameter.of(0x00);
+        }
+
+        communication.send(new Payload.Builder()
+            .withCommand(Command.ControllingAllServoIndicator)
+            .withParameters(Parameters.parameters(p))
+            .build(), message -> "");
     }
 
     public static interface MovePromise {

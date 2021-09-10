@@ -15,6 +15,10 @@ public class Parameter {
         return value;
     }
 
+    public String asString() {
+        return new String(Character.toChars(value));
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == null) {

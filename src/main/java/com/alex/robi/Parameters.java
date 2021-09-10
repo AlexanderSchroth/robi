@@ -1,5 +1,6 @@
 package com.alex.robi;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -9,6 +10,10 @@ public class Parameters {
 
     public int lenght() {
         return parameters.size();
+    }
+
+    private Parameters() {
+        parameters = new ArrayList<>();
     }
 
     public static Parameters parameters(Parameter... params) {
@@ -23,5 +28,14 @@ public class Parameters {
 
     public int sum() {
         return parameters.stream().map(p -> p.value()).reduce(0, Integer::sum);
+    }
+
+    public static Parameters asParameters(String aString) {
+        Parameters parameters = new Parameters();
+        for (int i = 0; i < aString.length(); i++) {
+            char c = aString.charAt(i);
+            parameters.parameters.add(Parameter.of(c));
+        }
+        return parameters;
     }
 }

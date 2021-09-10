@@ -3,8 +3,6 @@ package com.alex.robi;
 import com.alex.robi.Movement.Servo;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -15,6 +13,19 @@ import javax.swing.JFrame;
 public class Alex {
 
     private static String ROBOT = "881B9912037D";
+
+    private static void test(Movement movement, Adminstration administration) {
+
+        System.out.println("---------------------");
+        administration.obtainActionList();
+        // administration.implementActionList("Default");
+        System.out.println("---------------------");
+
+        // movement.offset(Servo.LEFT_SHOULDER, new Offset(90));
+        // movement.offset(Servo.LEFT_ARM, new Offset(90));
+        //movement.move(Servo.LEFT_ARM, new Angle(), new Time());
+        //movement.move(Servo.LEFT_SHOULDER, new Angle(), new Time());
+    }
 
     public static void main(String[] args) throws IOException {
 
@@ -28,17 +39,33 @@ public class Alex {
         Movement movement = new AlphaMovement(communication);
         Adminstration administration = new AlphaAdministration(communication);
 
-        // sleep();
-        administration.handshake();
-        administration.playStop();
-        RobotState state = administration.state();
-        System.out.println(state);
-        Offset readOffset1 = movement.readOffset(Servo.LEFT_ARM);
-        System.out.println(readOffset1);
-        movement.offset(Servo.LEFT_ARM, new Offset(130));
-        Offset readOffset2 = movement.readOffset(Servo.LEFT_ARM);
-        System.out.println(readOffset2);
+        try {
+            administration.handshake();
+            sleep();
+            test(movement, administration);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            communication.close();
+        }
 
+        sleep();
+        //
+        // RobotState state = administration.state();
+        // System.out.println(state);
+        //
+        //
+        // Offset readOffset1 = movement.readOffset(Servo.LEFT_ARM);
+        // System.out.println(readOffset1);
+        //
+        // movement.move(Servo.RIGHT_ARM, new Angle(), new Time());
+        // movement.move(Servo.LEFT_ARM, new Angle(), new Time());
+        //
+        // Offset readOffset2 = movement.readOffset(Servo.LEFT_ARM);
+        // System.out.println(readOffset2);
+        //
+
+        //
         // sleep();
         // movement.move(Servo.LEFT_SHOULDER, new Offset(), new Time());
         // sleep();
@@ -52,13 +79,13 @@ public class Alex {
         // sleep();
         // movement.move(Servo.RIGHT_ELBOW, new Angle(), new Time());
 
-        Console console = new Console(movement);
-        console.addWindowListener(new WindowAdapter() {
-            @Override
-            public void windowClosed(WindowEvent event) {
-                communication.close();
-            }
-        });
+        // Console console = new Console(movement);
+        // console.addWindowListener(new WindowAdapter() {
+        // @Override
+        // public void windowClosed(WindowEvent event) {
+        // communication.close();
+        // }
+        // });
     }
 
     private static final class Console extends JFrame {

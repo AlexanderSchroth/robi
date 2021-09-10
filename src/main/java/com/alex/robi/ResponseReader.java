@@ -84,7 +84,7 @@ class ResponseReader implements Runnable {
 
                 ResponseWaiter responseWaiter = waiters.get(message.command());
                 if (responseWaiter == null) {
-                    LOG.debug("No one waits for answer of command {}", message.command());
+                    LOG.debug("No one waits for answer of command {}. Message:{}", message.command(), message);
                 } else {
                     if (responseWaiter.add(message)) {
                         waiters.remove(message.command());
