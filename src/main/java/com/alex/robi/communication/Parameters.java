@@ -1,0 +1,48 @@
+package com.alex.robi.communication;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
+
+public class Parameters {
+
+    private List<Parameter> parameters;
+
+    public int lenght() {
+        return parameters.size();
+    }
+
+    private Parameters() {
+        parameters = new ArrayList<>();
+    }
+
+    public static Parameters parameters(Parameter... params) {
+        Parameters parameters = new Parameters();
+        parameters.parameters = Arrays.asList(params);
+        return parameters;
+    }
+
+    public static Parameters parameters(Parameterable... params) {
+        Parameters parameters = new Parameters();
+        parameters.parameters = Arrays.asList(params).stream().map(Parameterable::asParameter).collect(Collectors.toList());
+        return parameters;
+    }
+
+    public int[] asArray() {
+        return parameters.stream().mapToInt(p -> p.value()).toArray();
+    }
+
+    public int sum() {
+        return parameters.stream().map(p -> p.value()).reduce(0, Integer::sum);
+    }
+
+    public static Parameters asParameters(String aString) {
+        Parameters parameters = new Parameters();
+        for (int i = 0; i < aString.length(); i++) {
+            char c = aString.charAt(i);
+            parameters.parameters.add(Parameter.of(c));
+        }
+        return parameters;
+    }
+}
