@@ -1,12 +1,12 @@
 package com.alex.robi;
 
-import com.alex.robi.api.AlphaRobot;
-import com.alex.robi.api.Offset;
-import com.alex.robi.api.Robot;
-import com.alex.robi.api.Servo;
 import com.alex.robi.communication.AlphaCommunication;
 import com.alex.robi.communication.AlphaConnection;
 import com.alex.robi.communication.Communication;
+import com.alex.robi.function.AlphaRobot;
+import com.alex.robi.function.Offset;
+import com.alex.robi.function.Robot;
+import com.alex.robi.function.Servo;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;

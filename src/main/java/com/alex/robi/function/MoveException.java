@@ -1,4 +1,4 @@
-package com.alex.robi.api;
+package com.alex.robi.function;
 
 public class MoveException extends RuntimeException {
 

@@ -1,4 +1,4 @@
-package com.alex.robi.api;
+package com.alex.robi.function;
 
 import com.alex.robi.communication.Parameter;
 import java.text.MessageFormat;
