@@ -15,6 +15,48 @@ public class Offset {
         return Integer.toString(offset);
     }
 
+    public Sign sign() {
+        if (offset < 0) {
+            return Sign.Minus;
+        } else {
+            return Sign.Plus;
+        }
+    }
+
+    public AbsolutOffset absulutOffset() {
+        return new AbsolutOffset(Math.abs(offset));
+    }
+
+    public static enum Sign implements Parameterable {
+
+        Plus, Minus;
+
+        @Override
+        public Parameter asParameter() {
+            char sign;
+            if (this == Plus) {
+                sign = '+';
+            } else {
+                sign = '-';
+            }
+            return Parameter.of((int) sign);
+        }
+    }
+
+    public static class AbsolutOffset implements Parameterable {
+
+        private int value;
+
+        public AbsolutOffset(int value) {
+            this.value = value;
+        }
+
+        @Override
+        public Parameter asParameter() {
+            return Parameter.of((int) value);
+        }
+    }
+
     public Parameter[] asParameter() {
         char sign;
         if (offset < 0) {

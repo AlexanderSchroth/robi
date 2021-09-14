@@ -5,6 +5,8 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class Parameter {
 
+    public static Parameter NOP_PARAM = new Parameter(0x00);
+
     private int value;
 
     private Parameter(int value) {

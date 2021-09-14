@@ -1,6 +1,6 @@
 package com.alex.robi;
 
-import com.alex.robi.Movement.Servo;
+import com.alex.robi.Robot.Servo;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.io.IOException;
@@ -14,10 +14,10 @@ public class Alex {
 
     private static String ROBOT = "881B9912037D";
 
-    private static void test(Movement movement, Adminstration administration) {
+    private static void test(Robot movement) {
 
         System.out.println("---------------------");
-        administration.obtainActionList();
+        movement.obtainActionList();
         // administration.implementActionList("Default");
         System.out.println("---------------------");
 
@@ -36,13 +36,12 @@ public class Alex {
         AlphaConnection connection = new AlphaConnection(outputStream);
         Communication communication = new AlphaCommunication(connection, inputStream);
 
-        Movement movement = new AlphaMovement(communication);
-        Adminstration administration = new AlphaAdministration(communication);
+        Robot movement = new AlphaRobot(communication);
 
         try {
-            administration.handshake();
+            movement.handshake();
             sleep();
-            test(movement, administration);
+            test(movement);
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -90,9 +89,9 @@ public class Alex {
 
     private static final class Console extends JFrame {
 
-        private Movement movement;
+        private Robot movement;
 
-        public Console(Movement movement) {
+        public Console(Robot movement) {
             this.movement = movement;
 
             getContentPane().setFocusable(true);

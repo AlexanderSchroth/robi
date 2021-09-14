@@ -3,6 +3,7 @@ package com.alex.robi;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Parameters {
 
@@ -19,6 +20,12 @@ public class Parameters {
     public static Parameters parameters(Parameter... params) {
         Parameters parameters = new Parameters();
         parameters.parameters = Arrays.asList(params);
+        return parameters;
+    }
+
+    public static Parameters parameters(Parameterable... params) {
+        Parameters parameters = new Parameters();
+        parameters.parameters = Arrays.asList(params).stream().map(Parameterable::asParameter).collect(Collectors.toList());
         return parameters;
     }
 

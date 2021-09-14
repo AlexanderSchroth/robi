@@ -17,8 +17,32 @@ public class Payload {
         return parameters;
     }
 
+    public static Payload payload(Command command) {
+        return new Builder()
+            .withCommand(command)
+            .withParameters(Parameters.parameters(Parameter.NOP_PARAM))
+            .build();
+    }
+
     public static Payload payload(Command command, Parameter... parameters) {
-        return new Builder().withCommand(command).withParameters(Parameters.parameters(parameters)).build();
+        return new Builder()
+            .withCommand(command)
+            .withParameters(Parameters.parameters(parameters))
+            .build();
+    }
+
+    public static Payload payload(Command command, Parameters parameters) {
+        return new Builder()
+            .withCommand(command)
+            .withParameters(parameters)
+            .build();
+    }
+
+    public static Payload payload(Command command, Parameterable... parameters) {
+        return new Builder()
+            .withCommand(command)
+            .withParameters(Parameters.parameters(parameters))
+            .build();
     }
 
     public static class Builder {

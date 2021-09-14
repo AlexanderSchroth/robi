@@ -1,6 +1,6 @@
 package com.alex.robi;
 
-public class Angle {
+public class Angle implements Parameterable {
 
     int value;
 
