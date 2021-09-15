@@ -4,17 +4,12 @@ import com.alex.robi.communication.AlphaCommunication;
 import com.alex.robi.communication.AlphaConnection;
 import com.alex.robi.communication.Communication;
 import com.alex.robi.function.AlphaRobot;
-import com.alex.robi.function.Offset;
 import com.alex.robi.function.Robot;
-import com.alex.robi.function.Servo;
-import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import javax.microedition.io.Connector;
 import javax.microedition.io.StreamConnection;
-import javax.swing.JFrame;
 
 public class TestClient {
 
@@ -24,8 +19,11 @@ public class TestClient {
 
         System.out.println("---------------------");
         movement.obtainActionList();
+        movement.implementActionList("Default");
         // administration.implementActionList("Default");
         System.out.println("---------------------");
+
+        sleep();
 
         // movement.offset(Servo.LEFT_SHOULDER, new Offset(90));
         // movement.offset(Servo.LEFT_ARM, new Offset(90));
@@ -52,74 +50,6 @@ public class TestClient {
             e.printStackTrace();
         } finally {
             communication.close();
-        }
-
-        sleep();
-        //
-        // RobotState state = administration.state();
-        // System.out.println(state);
-        //
-        //
-        // Offset readOffset1 = movement.readOffset(Servo.LEFT_ARM);
-        // System.out.println(readOffset1);
-        //
-        // movement.move(Servo.RIGHT_ARM, new Angle(), new Time());
-        // movement.move(Servo.LEFT_ARM, new Angle(), new Time());
-        //
-        // Offset readOffset2 = movement.readOffset(Servo.LEFT_ARM);
-        // System.out.println(readOffset2);
-        //
-
-        //
-        // sleep();
-        // movement.move(Servo.LEFT_SHOULDER, new Offset(), new Time());
-        // sleep();
-        // movement.move(Servo.LEFT_ARM, new Angle(), new Time());
-        // sleep();
-        // movement.move(Servo.LEFT_ELBOW, new Angle(), new Time());
-        // sleep();
-        // movement.move(Servo.RIGHT_SHOULDER, new Angle(), new Time());
-        // sleep();
-        // movement.move(Servo.RIGHT_ARM, new Angle(), new Time());
-        // sleep();
-        // movement.move(Servo.RIGHT_ELBOW, new Angle(), new Time());
-
-        // Console console = new Console(movement);
-        // console.addWindowListener(new WindowAdapter() {
-        // @Override
-        // public void windowClosed(WindowEvent event) {
-        // communication.close();
-        // }
-        // });
-    }
-
-    private static final class Console extends JFrame {
-
-        private Robot movement;
-
-        public Console(Robot movement) {
-            this.movement = movement;
-
-            getContentPane().setFocusable(true);
-            getContentPane().addKeyListener(new KeyListener() {
-
-                @Override
-                public void keyTyped(KeyEvent e) {
-                }
-
-                @Override
-                public void keyReleased(KeyEvent e) {
-                }
-
-                @Override
-                public void keyPressed(KeyEvent e) {
-                    movement.offset(Servo.LEFT_ELBOW, new Offset(1));
-                }
-            });
-
-            setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-            setSize(100, 100);
-            setVisible(true);
         }
     }
 
