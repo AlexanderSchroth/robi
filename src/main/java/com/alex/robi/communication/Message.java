@@ -1,11 +1,13 @@
 package com.alex.robi.communication;
 
+import static java.util.Arrays.copyOfRange;
+import static java.util.stream.IntStream.concat;
+import static java.util.stream.IntStream.of;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.text.MessageFormat;
-import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -150,17 +152,17 @@ public class Message {
         }
 
         private void validateCheckByte(int[] b) {
-            int calculatedCheck = calculateCheck(b[2], b[3], Arrays.copyOfRange(b, 4, b.length - 2));
+            MessageCheckSum messageCheckSum = new MessageCheckSum(concat(of(b[2], b[3]), of(copyOfRange(b, 4, b.length - 2))).toArray());
             int givenCheck = b[b.length - 2];
-            if (calculatedCheck != givenCheck) {
-                throw new IllegalArgumentException(MessageFormat.format("Check {0} value not as expected {1}", dump(givenCheck), dump(calculatedCheck)));
+            if (!messageCheckSum.isValid(givenCheck)) {
+                throw new IllegalArgumentException(MessageFormat.format("Check byte {0} not as expected {1}", dump(givenCheck), messageCheckSum));
             }
         }
 
         private void expectedLength(int[] b) {
             int expectedLength = b.length - FIXED_PARTS;
             if (b[3] == expectedLength) {
-                throw new IllegalArgumentException(MessageFormat.format("Length {0} value not as expected {1}", dump(b[3]), dump(expectedLength)));
+                throw new IllegalArgumentException(MessageFormat.format("Length byte {0} not as expected {1}", dump(b[3]), dump(expectedLength)));
             }
         }
 
@@ -174,23 +176,24 @@ public class Message {
 
         private void expectedHeader(int[] b) {
             if (b[0] != COMMAND_HEADER_1) {
-                throw new IllegalArgumentException(MessageFormat.format("Header1 {0} value not as expected {1}", dump(b[0]), dump(COMMAND_HEADER_1)));
+                throw new IllegalArgumentException(MessageFormat.format("Header1 {0} not as expected {1}", dump(b[0]), dump(COMMAND_HEADER_1)));
             }
 
             if (b[1] != COMMAND_HEADER_2) {
-                throw new IllegalArgumentException(MessageFormat.format("Header2 {0} value not as expected {1}", dump(b[1]), dump(COMMAND_HEADER_2)));
+                throw new IllegalArgumentException(MessageFormat.format("Header2 {0} not as expected {1}", dump(b[1]), dump(COMMAND_HEADER_2)));
             }
         }
 
         public FromBytesBuilder withBytes(int[] b) {
+            MessageMask messageMask = new MessageMask(b);
             checkConsistence(b);
-            toBuild.commandHeader1 = b[0];
-            toBuild.commandHeader2 = b[1];
-            toBuild.length = b[2];
-            toBuild.command = b[3];
-            toBuild.parameters = Arrays.copyOfRange(b, 4, b.length - 2);
-            toBuild.check = b[b.length - 2];
-            toBuild.endCharacter = b[b.length - 1];
+            toBuild.commandHeader1 = messageMask.header1().value();
+            toBuild.commandHeader2 = messageMask.header2().value();
+            toBuild.length = messageMask.length().value();
+            toBuild.command = messageMask.command().value();
+            toBuild.parameters = messageMask.parameters().stream().mapToInt(value -> value.value()).toArray();
+            toBuild.check = messageMask.check().value();
+            toBuild.endCharacter = messageMask.endCharacter().value();
             return this;
         }
 
@@ -265,22 +268,9 @@ public class Message {
 
         public Message build() {
             toBuild.length = FIXED_PARTS_ZERO_BASED + toBuild.parameters.length;
-            toBuild.check = calculateCheck(toBuild.length, toBuild.command, toBuild.parameters);
+            toBuild.check = new MessageCheckSum(concat(of(toBuild.length, toBuild.command), of(toBuild.parameters)).toArray()).value();
             return toBuild;
         }
     }
 
-    private static int calculateCheck(int length, int command, int[] parameters) {
-        int checkSum = length + command + sumParameters(parameters);
-        byte[] bytes = ByteBuffer.allocate(3 + parameters.length).putInt(checkSum).array();
-        return Byte.toUnsignedInt(bytes[3]);
-    }
-
-    private static int sumParameters(int[] parameters) {
-        int sum = 0;
-        for (int i = 0; i < parameters.length; i++) {
-            sum += parameters[i];
-        }
-        return sum;
-    }
 }

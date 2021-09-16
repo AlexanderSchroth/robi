@@ -1,0 +1,37 @@
+package com.alex.robi.communication;
+
+import static java.util.stream.IntStream.of;
+
+import java.util.List;
+
+public class MessageCheckSum {
+
+    private static final int B_1111_1111 = 0xFF;
+
+    private int value;
+
+    public MessageCheckSum(int[] fragments) {
+        this.value = compute(fragments);
+    }
+
+    public MessageCheckSum(List<RobiByte> fragments) {
+        this.value = compute(fragments.stream().mapToInt(RobiByte::value).toArray());
+    }
+
+    private int compute(int[] fragments) {
+        return of(fragments).sum() & B_1111_1111;
+    }
+
+    @Override
+    public String toString() {
+        return Message.dump(value);
+    }
+
+    public int value() {
+        return value;
+    }
+
+    public boolean isValid(int excpected) {
+        return this.value == excpected;
+    }
+}

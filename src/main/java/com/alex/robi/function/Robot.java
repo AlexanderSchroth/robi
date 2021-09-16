@@ -22,7 +22,7 @@ public interface Robot {
 
     void move(Servo s, Angle angle, Time time);
 
-    OffsetResponse offset(Servo servo, Offset offset);
+    void setOffset(Servo servo, Offset offset);
 
     Offset readOffset(Servo servo);
 

@@ -1,6 +1,5 @@
 package com.alex.robi.communication;
 
-import com.alex.robi.communication.AlphaCommunication.ResponseWaiter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -36,7 +35,7 @@ class ResponseReader implements Runnable {
 
     public ResponseWaiter waitFor(Command c) {
         if (waiters.containsKey(c)) {
-            throw new IllegalArgumentException("Someone already waits for <" + c + "> to return");
+            throw new IllegalArgumentException("Someone already is waiting for <" + c + "> to return");
         }
         ResponseWaiter responseWaiter = new ResponseWaiter(c);
         waiters.put(c, responseWaiter);
@@ -54,10 +53,8 @@ class ResponseReader implements Runnable {
             try {
                 read();
                 Thread.sleep(100);
-            } catch (IOException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
+            } catch (IOException | InterruptedException e) {
+                LOG.error("Error while reading", e);
             }
         }
     }
@@ -80,7 +77,11 @@ class ResponseReader implements Runnable {
             partialMessage.add(b[i]);
 
             if (commandHeader1Received && commandHeader2Received && endCommandReceived) {
-                Message message = new Message.FromBytesBuilder().withBytes(partialMessage.stream().mapToInt(integer -> integer).toArray()).build();
+                Message message = new Message.FromBytesBuilder()
+                    .withBytes(partialMessage.stream()
+                        .mapToInt(integer -> integer)
+                        .toArray())
+                    .build();
 
                 ResponseWaiter responseWaiter = waiters.get(message.command());
                 if (responseWaiter == null) {

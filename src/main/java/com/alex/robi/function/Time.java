@@ -6,7 +6,7 @@ import com.alex.robi.communication.Parameterable;
 public class Time implements Parameterable {
 
     public Parameter asParameter() {
-        return Parameter.of(30);
+        return Parameter.of(50);
     }
 
 }

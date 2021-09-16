@@ -6,6 +6,7 @@ import com.alex.robi.communication.Command;
 import com.alex.robi.communication.Communication;
 import com.alex.robi.communication.Parameters;
 import com.alex.robi.communication.Payload;
+import java.text.MessageFormat;
 
 public class AlphaRobot implements Robot {
 
@@ -89,22 +90,34 @@ public class AlphaRobot implements Robot {
         communication.send(payload(Command.ControllingTheMotionOfASingleServo, servo, time, angle), messages -> {
             int response = messages.get(0).parameters()[1].value();
             if (response == 0X00) {
-
+                return "success";
             } else if (response == 0x01) {
                 throw new MoveException("wrong servo ID");
             } else if (response == 0x02) {
                 throw new MoveException("allow servo angle acess");
             } else if (response == 0x03) {
                 throw new MoveException("no reply from servo");
+            } else {
+                throw new MoveException(MessageFormat.format("Unkown move response {}", response));
             }
-            return "success";
         });
     }
 
     @Override
-    public OffsetResponse offset(Servo servo, Offset offset) {
-        return communication.send(payload(Command.ControllingOffsetOfASingleServo, servo, offset.sign(), offset.absulutOffset()),
-            messages -> new OffsetResponse(messages));
+    public void setOffset(Servo servo, Offset offset) throws SetOffsetException {
+        communication.send(payload(Command.ControllingOffsetOfASingleServo, servo.asParameter(), offset.offset1(), offset.offset2()),
+            messages -> {
+                int response = messages.get(0).parameters()[1].value();
+                if (response == 0X00) {
+                    return "success";
+                } else if (response == 0x01) {
+                    throw new SetOffsetException("failure");
+                } else if (response == 0x02) {
+                    throw new SetOffsetException("no reply from servo");
+                } else {
+                    throw new SetOffsetException(MessageFormat.format("Unkown move response {}", response));
+                }
+            });
     }
 
     @Override
