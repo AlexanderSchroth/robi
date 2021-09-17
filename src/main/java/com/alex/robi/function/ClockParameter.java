@@ -1,8 +1,7 @@
 package com.alex.robi.function;
 
-import com.alex.robi.communication.Message;
-import com.alex.robi.communication.Parameter;
-import java.util.Arrays;
+import com.alex.robi.communication.Parameters;
+import com.alex.robi.communication.Payload;
 
 public class ClockParameter {
 
@@ -13,26 +12,15 @@ public class ClockParameter {
     private int second;
     private String actionList;
 
-    public static ClockParameter fromMessage(Message m) {
+    public static ClockParameter fromMessage(Payload m) {
         ClockParameter clock = new ClockParameter();
-
-        Parameter[] parameters = m.parameters();
-        clock.clockSwitch = YesNo.fromRobotState(parameters[0]);
-        clock.daily = YesNo.fromRobotState(parameters[1]);
-        clock.hour = parameters[2].value();
-        clock.minute = parameters[3].value();
-        clock.second = parameters[4].value();
-
-        Parameter[] copyOfRange = Arrays.copyOfRange(parameters, 6, parameters.length);
-        clock.actionList = asString(copyOfRange);
+        Parameters parameters = m.parameters();
+        clock.clockSwitch = YesNo.fromRobotState(parameters.first());
+        clock.daily = YesNo.fromRobotState(parameters.second());
+        clock.hour = parameters.third().value();
+        clock.minute = parameters.fourth().value();
+        clock.second = parameters.fifth().value();
+        clock.actionList = parameters.subset(6, parameters.lenght()).asString();
         return clock;
-    }
-
-    public static String asString(Parameter[] parameters) {
-        StringBuffer sb = new StringBuffer();
-        for (Parameter p : parameters) {
-            sb.append(p.asString());
-        }
-        return sb.toString();
     }
 }

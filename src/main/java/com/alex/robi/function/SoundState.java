@@ -1,7 +1,7 @@
 package com.alex.robi.function;
 
-import com.alex.robi.communication.Message;
 import com.alex.robi.communication.Parameter;
+import com.alex.robi.communication.Payload;
 import java.text.MessageFormat;
 import java.util.List;
 
@@ -16,17 +16,17 @@ public enum SoundState {
         this.parameter = value;
     }
 
-    public static SoundState fromRobotStateResponse(List<Message> m) {
-        Parameter[] parameters = m.get(0).parameters();
-        if (!parameters[0].equals(FLAG)) {
+    public static SoundState fromRobotStateResponse(List<Payload> m) {
+        Payload payload = m.get(0);
+        if (!payload.parameters().first().equals(FLAG)) {
             throw new IllegalArgumentException("Wrong message?!?");
         }
 
         for (SoundState soundState : SoundState.values()) {
-            if (soundState.parameter.equals(parameters[1])) {
+            if (soundState.parameter.equals(payload.parameters().second())) {
                 return soundState;
             }
         }
-        throw new IllegalArgumentException(MessageFormat.format("Unkown value {}", parameters[1]));
+        throw new IllegalArgumentException(MessageFormat.format("Unkown value {}", payload.parameters().second()));
     }
 }

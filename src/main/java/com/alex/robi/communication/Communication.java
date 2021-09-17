@@ -10,6 +10,6 @@ public interface Communication {
 
     public static interface ResponseFactory<T> {
 
-        T create(List<Message> message);
+        T create(List<Payload> responsePayloads);
     }
 }

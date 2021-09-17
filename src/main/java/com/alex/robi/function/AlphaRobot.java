@@ -58,21 +58,21 @@ public class AlphaRobot implements Robot {
     @Override
     public String readSn() {
         return communication.send(payload(Command.ReadingTheSnOfTheTobot), messages -> {
-            return ClockParameter.asString(messages.get(0).parameters());
+            return messages.get(0).parameters().asString();
         });
     }
 
     @Override
     public String readSoftwareVersion() {
         return communication.send(payload(Command.ReadingTheSoftwareVersion), messages -> {
-            return ClockParameter.asString(messages.get(0).parameters());
+            return messages.get(0).parameters().asString();
         });
     }
 
     @Override
     public void implementActionList(String name) {
         communication.send(payload(Command.ImplementingAnActionList, Parameters.asParameters(name)), messages -> {
-            int value = messages.get(0).parameters()[0].value();
+            int value = messages.get(0).parameters().first().value();
             if (value == 0x00) {
                 return "success";
             } else if (value == 0x01) {
@@ -88,7 +88,7 @@ public class AlphaRobot implements Robot {
     @Override
     public void move(Servo servo, Angle angle, Time time) throws MoveException {
         communication.send(payload(Command.ControllingTheMotionOfASingleServo, servo, time, angle), messages -> {
-            int response = messages.get(0).parameters()[1].value();
+            int response = messages.get(0).parameters().second().value();
             if (response == 0X00) {
                 return "success";
             } else if (response == 0x01) {
@@ -107,7 +107,7 @@ public class AlphaRobot implements Robot {
     public void setOffset(Servo servo, Offset offset) throws SetOffsetException {
         communication.send(payload(Command.ControllingOffsetOfASingleServo, servo.asParameter(), offset.offset1(), offset.offset2()),
             messages -> {
-                int response = messages.get(0).parameters()[1].value();
+                int response = messages.get(0).parameters().second().value();
                 if (response == 0X00) {
                     return "success";
                 } else if (response == 0x01) {

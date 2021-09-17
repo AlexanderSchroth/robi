@@ -1,8 +1,7 @@
 package com.alex.robi.communication;
 
-import static java.util.stream.IntStream.of;
-
 import java.util.List;
+import java.util.stream.IntStream;
 
 public class MessageCheckSum {
 
@@ -14,12 +13,12 @@ public class MessageCheckSum {
         this.value = compute(fragments);
     }
 
-    public MessageCheckSum(List<RobiByte> fragments) {
-        this.value = compute(fragments.stream().mapToInt(RobiByte::value).toArray());
+    public MessageCheckSum(List<Parameter> fragments) {
+        this.value = compute(fragments.stream().mapToInt(Parameter::value).toArray());
     }
 
     private int compute(int[] fragments) {
-        return of(fragments).sum() & B_1111_1111;
+        return IntStream.of(fragments).sum() & B_1111_1111;
     }
 
     @Override

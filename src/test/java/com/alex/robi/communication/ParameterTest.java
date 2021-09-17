@@ -1,6 +1,6 @@
 package com.alex.robi.communication;
 
-import static com.alex.robi.communication.RobiByte.robiByte;
+import static com.alex.robi.communication.Parameter.of;
 import static org.hamcrest.CoreMatchers.equalToObject;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -8,25 +8,25 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import org.hamcrest.CoreMatchers;
 import org.junit.jupiter.api.Test;
 
-public class RobiByteTest {
+public class ParameterTest {
 
     @Test
     void testToString0() {
-        assertThat(robiByte(0).toString(), CoreMatchers.equalToObject("0x0, (int)0"));
+        assertThat(of(0).toString(), CoreMatchers.equalToObject("0x0, (int)0"));
     }
 
     @Test
     void testToString255() {
-        assertThat(robiByte(255).toString(), equalToObject("0xFF, (int)255"));
+        assertThat(of(255).toString(), equalToObject("0xFF, (int)255"));
     }
 
     @Test
     void toLow() {
-        assertThrows(IllegalArgumentException.class, () -> robiByte(-1));
+        assertThrows(IllegalArgumentException.class, () -> of(-1));
     }
 
     @Test
     void toHigh() {
-        assertThrows(IllegalArgumentException.class, () -> robiByte(256));
+        assertThrows(IllegalArgumentException.class, () -> of(256));
     }
 }

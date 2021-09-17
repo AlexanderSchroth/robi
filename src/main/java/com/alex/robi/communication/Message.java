@@ -1,13 +1,11 @@
 package com.alex.robi.communication;
 
-import static java.util.Arrays.copyOfRange;
 import static java.util.stream.IntStream.concat;
 import static java.util.stream.IntStream.of;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
-import java.text.MessageFormat;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -24,12 +22,17 @@ public class Message {
     private int endCharacter;
 
     public static final int COMMAND_HEADER_1 = 0xFB;
+    public static final Parameter PARAMETER_COMMAND_HEADER_1 = Parameter.of(COMMAND_HEADER_1);
+
     public static final int COMMAND_HEADER_2 = 0xBF;
+    public static final Parameter PARAMETER_COMMAND_HEADER_2 = Parameter.of(COMMAND_HEADER_2);
+
     public static final int END_CHARACTER = 0xED;
+    public static final Parameter PARAMETER_END_CHARACTER = Parameter.of(END_CHARACTER);
 
     // COMMAND_HEADER_1, COMMAND_HEADER2, LENGHT, COMMAND, CHECK, END_CHARACTER,
-    private static final int FIXED_PARTS = 6;
-    private static final int FIXED_PARTS_ZERO_BASED = FIXED_PARTS - 1;
+    static final int FIXED_PARTS = 6;
+    static final int FIXED_PARTS_ZERO_BASED = FIXED_PARTS - 1;
 
     private Message() {
     }
@@ -51,11 +54,18 @@ public class Message {
         connection.send(message);
     }
 
+    public Payload payload() {
+        return new Payload.Builder()
+            .withCommand(command())
+            .withParameters(Parameters.parameters(this.parameters()))
+            .build();
+    }
+
     public Command command() {
         return Command.findByValue(command);
     }
 
-    public Parameter[] parameters() {
+    private Parameter[] parameters() {
         return IntStream.of(parameters)
             .mapToObj(i -> Parameter.of(i))
             .collect(Collectors.toList())
@@ -143,50 +153,8 @@ public class Message {
             toBuild = new Message();
         }
 
-        private void checkConsistence(int[] b) {
-            expectedHeader(b);
-            expectedEnd(b);
-            expectedLength(b);
-            validateCheckByte(b);
-            expectedEnd(b);
-        }
-
-        private void validateCheckByte(int[] b) {
-            MessageCheckSum messageCheckSum = new MessageCheckSum(concat(of(b[2], b[3]), of(copyOfRange(b, 4, b.length - 2))).toArray());
-            int givenCheck = b[b.length - 2];
-            if (!messageCheckSum.isValid(givenCheck)) {
-                throw new IllegalArgumentException(MessageFormat.format("Check byte {0} not as expected {1}", dump(givenCheck), messageCheckSum));
-            }
-        }
-
-        private void expectedLength(int[] b) {
-            int expectedLength = b.length - FIXED_PARTS;
-            if (b[3] == expectedLength) {
-                throw new IllegalArgumentException(MessageFormat.format("Length byte {0} not as expected {1}", dump(b[3]), dump(expectedLength)));
-            }
-        }
-
-        private void expectedEnd(int[] b) {
-            int expectedEndCharacterPosition = b.length - 1;
-            if (b[expectedEndCharacterPosition] != END_CHARACTER) {
-                throw new IllegalArgumentException(
-                    MessageFormat.format("End character {0} value not as expected {1}", dump(b[expectedEndCharacterPosition]), dump(END_CHARACTER)));
-            }
-        }
-
-        private void expectedHeader(int[] b) {
-            if (b[0] != COMMAND_HEADER_1) {
-                throw new IllegalArgumentException(MessageFormat.format("Header1 {0} not as expected {1}", dump(b[0]), dump(COMMAND_HEADER_1)));
-            }
-
-            if (b[1] != COMMAND_HEADER_2) {
-                throw new IllegalArgumentException(MessageFormat.format("Header2 {0} not as expected {1}", dump(b[1]), dump(COMMAND_HEADER_2)));
-            }
-        }
-
         public FromBytesBuilder withBytes(int[] b) {
             MessageMask messageMask = new MessageMask(b);
-            checkConsistence(b);
             toBuild.commandHeader1 = messageMask.header1().value();
             toBuild.commandHeader2 = messageMask.header2().value();
             toBuild.length = messageMask.length().value();

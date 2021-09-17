@@ -32,7 +32,7 @@ public class AlphaCommunication implements Communication {
             message.send(sending);
             List<Message> responseMessages = waitFor.take();
             LOG.debug("received {}", responseMessages.stream().map(m -> m.toString()).collect(Collectors.joining(",", "[", "]")));
-            return responseFactory.create(responseMessages);
+            return responseFactory.create(responseMessages.stream().map(Message::payload).collect(Collectors.toList()));
         } catch (IOException | InterruptedException e) {
             throw new CommunicationException("Error during sending message to robi", e);
         }

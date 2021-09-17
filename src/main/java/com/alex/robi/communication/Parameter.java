@@ -10,11 +10,21 @@ public class Parameter {
     private int value;
 
     private Parameter(int value) {
+        if (value < 0) {
+            throw new IllegalArgumentException("value to low");
+        }
+        if (value > 255) {
+            throw new IllegalArgumentException("value to high");
+        }
         this.value = value;
     }
 
     public int value() {
         return value;
+    }
+
+    public boolean valueEqualTo(int otherValue) {
+        return value == otherValue;
     }
 
     public String asString() {

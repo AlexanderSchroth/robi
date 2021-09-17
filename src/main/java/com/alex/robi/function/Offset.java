@@ -1,7 +1,8 @@
 package com.alex.robi.function;
 
-import com.alex.robi.communication.Message;
 import com.alex.robi.communication.Parameter;
+import com.alex.robi.communication.Parameters;
+import com.alex.robi.communication.Payload;
 import java.util.List;
 
 public class Offset {
@@ -37,10 +38,10 @@ public class Offset {
         return new Parameter[] { Parameter.of((int) sign), Parameter.of(offset2) };
     }
 
-    public static Offset fromReadOffest(List<Message> messages) {
-        Message message = messages.get(0);
-        int offset1 = message.parameters()[1].value();
-        int offset2 = message.parameters()[2].value();
+    public static Offset fromReadOffest(List<Payload> response) {
+        Parameters parameters = response.get(0).parameters();
+        int offset1 = parameters.first().value();
+        int offset2 = parameters.second().value();
         return new Offset(offset1, offset2);
     }
 }

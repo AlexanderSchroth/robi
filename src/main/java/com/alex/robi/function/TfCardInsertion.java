@@ -1,7 +1,7 @@
 package com.alex.robi.function;
 
-import com.alex.robi.communication.Message;
 import com.alex.robi.communication.Parameter;
+import com.alex.robi.communication.Payload;
 import java.text.MessageFormat;
 import java.util.List;
 
@@ -16,17 +16,17 @@ public enum TfCardInsertion {
         this.parameter = value;
     }
 
-    public static TfCardInsertion fromRobotState(List<Message> message) {
-        Parameter[] parameters = message.get(4).parameters();
-        if (!parameters[0].equals(FLAG)) {
+    public static TfCardInsertion fromRobotState(List<Payload> response) {
+        Payload payload = response.get(4);
+        if (!payload.parameters().first().equals(FLAG)) {
             throw new IllegalArgumentException("Wrong message?!?");
         }
 
         for (TfCardInsertion tfCardInsertion : TfCardInsertion.values()) {
-            if (tfCardInsertion.parameter.equals(parameters[1])) {
+            if (tfCardInsertion.parameter.equals(payload.parameters().second())) {
                 return tfCardInsertion;
             }
         }
-        throw new IllegalArgumentException(MessageFormat.format("Unkown value {}", parameters[1]));
+        throw new IllegalArgumentException(MessageFormat.format("Unkown value {}", payload.parameters().second()));
     }
 }

@@ -1,11 +1,11 @@
 package com.alex.robi.communication;
 
-import static com.alex.robi.communication.RobiByte.robiByte;
+import static com.alex.robi.communication.Parameter.of;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 import java.util.List;
-import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 
 public class MessageMaskTest {
@@ -14,41 +14,41 @@ public class MessageMaskTest {
 
     @Test
     void header1() {
-        assertThat(new MessageMask(TEST_MESSAGE).header1(), equalTo(robiByte(251)));
+        assertThat(new MessageMask(TEST_MESSAGE).header1(), equalTo(of(251)));
     }
 
     @Test
     void header2() {
-        assertThat(new MessageMask(TEST_MESSAGE).header2(), equalTo(robiByte(191)));
+        assertThat(new MessageMask(TEST_MESSAGE).header2(), equalTo(of(191)));
     }
 
     @Test
     void command() {
-        assertThat(new MessageMask(TEST_MESSAGE).command(), equalTo(robiByte(1)));
+        assertThat(new MessageMask(TEST_MESSAGE).command(), equalTo(of(1)));
     }
 
     @Test
     void length() {
-        assertThat(new MessageMask(TEST_MESSAGE).length(), equalTo(robiByte(16)));
+        assertThat(new MessageMask(TEST_MESSAGE).length(), equalTo(of(16)));
     }
 
     @Test
     void parameters() {
-        List<RobiByte> parameters = new MessageMask(TEST_MESSAGE).parameters();
+        List<Parameter> parameters = new MessageMask(TEST_MESSAGE).parameters();
         assertThat(parameters,
-            CoreMatchers.hasItems(robiByte(65), robiByte(108), robiByte(112), robiByte(104), robiByte(97), robiByte(49), robiByte(95), robiByte(48),
-                robiByte(51),
-                robiByte(55), robiByte(68)));
+            Matchers.contains(of(65), of(108), of(112), of(104), of(97), of(49), of(95), of(48),
+                of(51),
+                of(55), of(68)));
     }
 
     @Test
     void check() {
-        assertThat(new MessageMask(TEST_MESSAGE).check(), equalTo(robiByte(101)));
+        assertThat(new MessageMask(TEST_MESSAGE).check(), equalTo(of(101)));
     }
 
     @Test
     void end() {
-        assertThat(new MessageMask(TEST_MESSAGE).endCharacter(), equalTo(robiByte(237)));
+        assertThat(new MessageMask(TEST_MESSAGE).endCharacter(), equalTo(of(237)));
     }
 
 }
