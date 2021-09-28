@@ -2,7 +2,7 @@ package com.alex.robi.communication;
 
 import java.text.MessageFormat;
 
-public enum Command {
+public enum Command implements Parameterable {
 
     BTHandshake(0x01), //
     ObtainingAnActionList(0x02), //
@@ -36,6 +36,11 @@ public enum Command {
 
     public int value() {
         return value;
+    }
+
+    @Override
+    public Parameter asParameter() {
+        return Parameter.of(value);
     }
 
     public int expectedResponseMessages() {

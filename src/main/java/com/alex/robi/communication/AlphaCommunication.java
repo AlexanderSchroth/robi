@@ -1,6 +1,6 @@
 package com.alex.robi.communication;
 
-import static com.alex.robi.communication.Message.messageWithPayload;
+import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,13 +26,15 @@ public class AlphaCommunication implements Communication {
     @Override
     public <T> T send(Payload payload, ResponseFactory<T> responseFactory) throws CommunicationException {
         try {
-            Message message = messageWithPayload(payload);
+            Message message = payload.toMessage();
             LOG.debug("sending {}, message: \n{}", payload.command(), message);
             ResponseWaiter waitFor = responseReader.waitFor(payload.command());
             message.send(sending);
             List<Message> responseMessages = waitFor.take();
             LOG.debug("received {}", responseMessages.stream().map(m -> m.toString()).collect(Collectors.joining(",", "[", "]")));
-            return responseFactory.create(responseMessages.stream().map(Message::payload).collect(Collectors.toList()));
+            return responseFactory.create(responseMessages.stream()
+                .map(Message::payload)
+                .collect(toList()));
         } catch (IOException | InterruptedException e) {
             throw new CommunicationException("Error during sending message to robi", e);
         }

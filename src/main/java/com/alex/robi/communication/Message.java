@@ -1,8 +1,5 @@
 package com.alex.robi.communication;
 
-import static java.util.stream.IntStream.concat;
-import static java.util.stream.IntStream.of;
-
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
@@ -116,7 +113,6 @@ public class Message {
         for (int i = 0; i < parameters.length; i++) {
             message.put("parameter" + i, dump(parameters[i]));
         }
-        message.put("parametersAsString", parametersAsString(parameters));
         message.put("check", dump(check));
         message.put("endCharacter", dump(endCharacter));
         try {
@@ -136,38 +132,6 @@ public class Message {
 
     public static String dump(int i) {
         return String.format("0x%1X", i) + ", (int)" + i;
-    }
-
-    public static Message messageWithPayload(Payload payload) {
-        return new Message.FromPayloadBuilder().withPayload(payload).build();
-    }
-
-    public static Message messageFromBytes(int[] bytes) {
-        return new Message.FromBytesBuilder().withBytes(bytes).build();
-    }
-
-    public static class FromBytesBuilder {
-        private Message toBuild;
-
-        public FromBytesBuilder() {
-            toBuild = new Message();
-        }
-
-        public FromBytesBuilder withBytes(int[] b) {
-            MessageMask messageMask = new MessageMask(b);
-            toBuild.commandHeader1 = messageMask.header1().value();
-            toBuild.commandHeader2 = messageMask.header2().value();
-            toBuild.length = messageMask.length().value();
-            toBuild.command = messageMask.command().value();
-            toBuild.parameters = messageMask.parameters().stream().mapToInt(value -> value.value()).toArray();
-            toBuild.check = messageMask.check().value();
-            toBuild.endCharacter = messageMask.endCharacter().value();
-            return this;
-        }
-
-        public Message build() {
-            return toBuild;
-        }
     }
 
     public static class Builder {
@@ -216,29 +180,4 @@ public class Message {
             return toBuild;
         }
     }
-
-    public static class FromPayloadBuilder {
-
-        private Message toBuild;
-
-        public FromPayloadBuilder() {
-            toBuild = new Message();
-            toBuild.commandHeader1 = COMMAND_HEADER_1;
-            toBuild.commandHeader2 = COMMAND_HEADER_2;
-            toBuild.endCharacter = END_CHARACTER;
-        }
-
-        public FromPayloadBuilder withPayload(Payload payload) {
-            toBuild.command = payload.command().value();
-            toBuild.parameters = payload.parameters().asArray();
-            return this;
-        }
-
-        public Message build() {
-            toBuild.length = FIXED_PARTS_ZERO_BASED + toBuild.parameters.length;
-            toBuild.check = new MessageCheckSum(concat(of(toBuild.length, toBuild.command), of(toBuild.parameters)).toArray()).value();
-            return toBuild;
-        }
-    }
-
 }

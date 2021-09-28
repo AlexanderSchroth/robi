@@ -51,4 +51,34 @@ public class MessageMaskTest {
         assertThat(new MessageMask(TEST_MESSAGE).endCharacter(), equalTo(of(237)));
     }
 
+    @Test
+    void builderFromBytes() {
+        Message messageFromBytes = MessageMask.bytesAsMessage(new int[] { 251, 191, 16, 1, 65, 108, 112, 104, 97, 49, 95, 48, 51, 55, 68, 101, 237 });
+        Message expectedMessage = new Message.Builder()
+            .withCommandHeader1(251)
+            .withCommandHeader2(191)
+            .withLength(16)
+            .withCommand(1)
+            .withParameters(new int[] { 65, 108, 112, 104, 97, 49, 95, 48, 51, 55, 68 })
+            .withCheck(101)
+            .withEndCharacter(237)
+            .builder();
+        assertThat(messageFromBytes, equalTo(expectedMessage));
+    }
+
+    @Test
+    void builderFromBytesWithLargeParameters() {
+        Message messageFromBytes = MessageMask.bytesAsMessage(new int[] { 251, 191, 15, 49, 98, 116, 95, 108, 105, 110, 107, 49, 50, 51, 185, 237 });
+        Message expectedMessage = new Message.Builder()
+            .withCommandHeader1(251)
+            .withCommandHeader2(191)
+            .withLength(15)
+            .withCommand(49)
+            .withParameters(new int[] { 98, 116, 95, 108, 105, 110, 107, 49, 50, 51 })
+            .withCheck(185)
+            .withEndCharacter(237)
+            .builder();
+        assertThat(messageFromBytes, equalTo(expectedMessage));
+    }
+
 }

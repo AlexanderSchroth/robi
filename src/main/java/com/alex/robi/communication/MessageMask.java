@@ -10,19 +10,17 @@ import static java.util.stream.Stream.of;
 
 import java.text.MessageFormat;
 import java.util.List;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
-public class MessageMask {
+class MessageMask {
 
     private int[] rawUnsignedBytes;
 
-    public MessageMask(int[] message) {
+    MessageMask(int[] message) {
         this.rawUnsignedBytes = message;
     }
 
-    public Parameter header1() {
+    Parameter header1() {
         Parameter header1 = of(rawUnsignedBytes[0]);
         if (header1.equals(PARAMETER_COMMAND_HEADER_1)) {
             return header1;
@@ -31,7 +29,7 @@ public class MessageMask {
         }
     }
 
-    public Parameter header2() {
+    Parameter header2() {
         Parameter header2 = of(rawUnsignedBytes[1]);
         if (header2.equals(PARAMETER_COMMAND_HEADER_2)) {
             return header2;
@@ -40,7 +38,7 @@ public class MessageMask {
         }
     }
 
-    public Parameter length() {
+    Parameter length() {
         Parameter givenLength = of(rawUnsignedBytes[2]);
         Parameter expectedLength = of(rawUnsignedBytes.length - Message.FIXED_PARTS);
 
@@ -51,11 +49,11 @@ public class MessageMask {
         }
     }
 
-    public Parameter command() {
+    Parameter command() {
         return of(rawUnsignedBytes[3]);
     }
 
-    public List<Parameter> parameters() {
+    List<Parameter> parameters() {
         return IntStream.of(rawUnsignedBytes)
             .skip(4)
             .limit(rawUnsignedBytes.length - Message.FIXED_PARTS)
@@ -63,8 +61,8 @@ public class MessageMask {
             .collect(toList());
     }
 
-    public Parameter check() {
-        List<Parameter> dataParameters = Stream.concat(Stream.of(length(), command()), parameters().stream()).collect(Collectors.toList());
+    Parameter check() {
+        List<Parameter> dataParameters = concat(of(length(), command()), parameters().stream()).collect(toList());
         Parameter expectedCheck = Parameters.parameters(dataParameters)
             .checksum();
 
@@ -78,15 +76,7 @@ public class MessageMask {
         }
     }
 
-    public MessageCheckSum checkSum() {
-        return new MessageCheckSum(
-            concat(
-                of(length(), command()),
-                parameters().stream())
-                    .collect(toList()));
-    }
-
-    public Parameter endCharacter() {
+    Parameter endCharacter() {
         Parameter endCharacter = of(rawUnsignedBytes[rawUnsignedBytes.length - 1]);
         if (endCharacter.equals(PARAMETER_END_CHARACTER)) {
             return endCharacter;
@@ -96,7 +86,19 @@ public class MessageMask {
         }
     }
 
-    public Message toMessage() {
-        return new Message.Builder().builder();
+    Message toMessage() {
+        return new Message.Builder()
+            .withCommandHeader1(header1().value())
+            .withCommandHeader2(header2().value())
+            .withLength(length().value())
+            .withCommand(command().value())
+            .withParameters(parameters().stream().mapToInt(value -> value.value()).toArray())
+            .withCheck(check().value())
+            .withEndCharacter(endCharacter().value())
+            .builder();
+    }
+
+    public static Message bytesAsMessage(int[] bytes) {
+        return new MessageMask(bytes).toMessage();
     }
 }

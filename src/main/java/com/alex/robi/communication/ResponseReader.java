@@ -77,11 +77,9 @@ class ResponseReader implements Runnable {
             partialMessage.add(b[i]);
 
             if (commandHeader1Received && commandHeader2Received && endCommandReceived) {
-                Message message = new Message.FromBytesBuilder()
-                    .withBytes(partialMessage.stream()
-                        .mapToInt(integer -> integer)
-                        .toArray())
-                    .build();
+                Message message = MessageMask.bytesAsMessage(partialMessage.stream()
+                    .mapToInt(integer -> integer)
+                    .toArray());
 
                 ResponseWaiter responseWaiter = waiters.get(message.command());
                 if (responseWaiter == null) {

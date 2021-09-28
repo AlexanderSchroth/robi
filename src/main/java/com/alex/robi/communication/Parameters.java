@@ -1,10 +1,14 @@
 package com.alex.robi.communication;
 
+import static java.util.Arrays.asList;
+import static java.util.stream.Collectors.toList;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -22,6 +26,13 @@ public class Parameters {
         this.parameters = parameters;
     }
 
+    public static Parameters parameters(Parameter p1, Parameter p2, Parameters params) {
+        List<Parameter> newParams = new ArrayList<>(params.parameters);
+        newParams.add(0, p1);
+        newParams.add(1, p2);
+        return new Parameters(newParams);
+    }
+
     public static Parameters parameters(Parameter... params) {
         return new Parameters(Arrays.asList(params));
     }
@@ -31,7 +42,9 @@ public class Parameters {
     }
 
     public static Parameters parameters(Parameterable... params) {
-        return new Parameters(Arrays.asList(params).stream().map(Parameterable::asParameter).collect(Collectors.toList()));
+        return new Parameters(asList(params).stream()
+            .map(Parameterable::asParameter)
+            .collect(toList()));
     }
 
     public Parameter checksum() {
@@ -71,19 +84,15 @@ public class Parameters {
     }
 
     private Parameter parameterNumber(int n) {
-        if (parameters.size() > n) {
+        if (parameters.size() >= n) {
             return parameters.get(n - 1);
         } else {
-            throw new IllegalArgumentException(MessageFormat.format("Try to read {0} parameter which is not present", n));
+            throw new IllegalArgumentException(MessageFormat.format("Try to read {0}. parameter which is not present", n));
         }
     }
 
     public int[] asArray() {
         return parameters.stream().mapToInt(p -> p.value()).toArray();
-    }
-
-    public int sum() {
-        return parameters.stream().map(p -> p.value()).reduce(0, Integer::sum);
     }
 
     public static Parameters asParameters(String aString) {
@@ -107,6 +116,14 @@ public class Parameters {
         return new EqualsBuilder()
             .append(this.parameters, that.parameters)
             .build();
+    }
+
+    public void toJson(ObjectNode node) {
+        node.put("asString", asString());
+        ArrayNode arrayNode = node.putArray("asInt");
+        for (int v : asArray()) {
+            arrayNode.add(v);
+        }
     }
 
     @Override
