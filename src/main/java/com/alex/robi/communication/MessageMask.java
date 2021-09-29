@@ -40,12 +40,12 @@ class MessageMask {
 
     Parameter length() {
         Parameter givenLength = of(rawUnsignedBytes[2]);
-        Parameter expectedLength = of(rawUnsignedBytes.length - Message.FIXED_PARTS);
+        Parameter expectedLength = of(rawUnsignedBytes.length - 1);
 
         if (givenLength.equals(expectedLength)) {
-            throw new IllegalArgumentException(MessageFormat.format("Length byte {0} not as expected {1}", givenLength, expectedLength));
-        } else {
             return givenLength;
+        } else {
+            throw new IllegalArgumentException(MessageFormat.format("Length byte {0} not as expected {1}", givenLength, expectedLength));
         }
     }
 

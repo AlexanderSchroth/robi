@@ -3,23 +3,42 @@ package com.alex.robi.communication;
 import static com.alex.robi.communication.Parameter.of;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import java.util.List;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 public class MessageMaskTest {
 
     private static final int[] TEST_MESSAGE = new int[] { 251, 191, 16, 1, 65, 108, 112, 104, 97, 49, 95, 48, 51, 55, 68, 101, 237 };
+    private static final int[] UNHAPPY_TEST_MESSAGE = new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
 
-    @Test
-    void header1() {
-        assertThat(new MessageMask(TEST_MESSAGE).header1(), equalTo(of(251)));
+    @Nested
+    class header1 {
+        @Test
+        void happy() {
+            assertThat(new MessageMask(TEST_MESSAGE).header1(), equalTo(of(251)));
+        }
+
+        @Test
+        void unhappy() {
+            assertThrows(IllegalArgumentException.class, () -> new MessageMask(UNHAPPY_TEST_MESSAGE).header1());
+        }
     }
 
-    @Test
-    void header2() {
-        assertThat(new MessageMask(TEST_MESSAGE).header2(), equalTo(of(191)));
+    @Nested
+    class header2 {
+        @Test
+        void happy() {
+            assertThat(new MessageMask(TEST_MESSAGE).header2(), equalTo(of(191)));
+        }
+
+        @Test
+        void unhappy() {
+            assertThrows(IllegalArgumentException.class, () -> new MessageMask(UNHAPPY_TEST_MESSAGE).header2());
+        }
     }
 
     @Test
@@ -27,9 +46,17 @@ public class MessageMaskTest {
         assertThat(new MessageMask(TEST_MESSAGE).command(), equalTo(of(1)));
     }
 
-    @Test
-    void length() {
-        assertThat(new MessageMask(TEST_MESSAGE).length(), equalTo(of(16)));
+    @Nested
+    class length {
+        @Test
+        void happy() {
+            assertThat(new MessageMask(TEST_MESSAGE).length(), equalTo(of(16)));
+        }
+
+        @Test
+        void unhappy() {
+            assertThrows(IllegalArgumentException.class, () -> new MessageMask(UNHAPPY_TEST_MESSAGE).length());
+        }
     }
 
     @Test
@@ -41,14 +68,30 @@ public class MessageMaskTest {
                 of(55), of(68)));
     }
 
-    @Test
-    void check() {
-        assertThat(new MessageMask(TEST_MESSAGE).check(), equalTo(of(101)));
+    @Nested
+    class check {
+        @Test
+        void happy() {
+            assertThat(new MessageMask(TEST_MESSAGE).check(), equalTo(of(101)));
+        }
+
+        @Test
+        void unhappy() {
+            assertThrows(IllegalArgumentException.class, () -> new MessageMask(UNHAPPY_TEST_MESSAGE).check());
+        }
     }
 
-    @Test
-    void end() {
-        assertThat(new MessageMask(TEST_MESSAGE).endCharacter(), equalTo(of(237)));
+    @Nested
+    class end {
+        @Test
+        void happy() {
+            assertThat(new MessageMask(TEST_MESSAGE).endCharacter(), equalTo(of(237)));
+        }
+
+        @Test
+        void unhappy() {
+            assertThrows(IllegalArgumentException.class, () -> new MessageMask(UNHAPPY_TEST_MESSAGE).endCharacter());
+        }
     }
 
     @Test
