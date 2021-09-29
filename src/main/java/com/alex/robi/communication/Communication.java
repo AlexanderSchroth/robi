@@ -8,6 +8,8 @@ public interface Communication {
 
     void close() throws CommunicationException;
 
+    void open() throws CommunicationException;
+
     public static interface ResponseFactory<T> {
 
         T create(List<Payload> responsePayloads);

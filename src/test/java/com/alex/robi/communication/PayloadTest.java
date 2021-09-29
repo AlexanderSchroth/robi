@@ -19,7 +19,7 @@ public class PayloadTest {
             .withParameters(new int[] { 1 })
             .withCheck(8)
             .withEndCharacter(237)
-            .builder();
+            .build();
 
         assertThat(messageFromPayload, equalTo(expectedMessage));
     }

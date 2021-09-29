@@ -3,7 +3,6 @@ package com.alex.robi.communication;
 import static java.util.stream.Collectors.toList;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
@@ -14,13 +13,11 @@ public class AlphaCommunication implements Communication {
     private final static Logger LOG = LoggerFactory.getLogger(Communication.class);
 
     private Sending sending;
-    private ResponseReader responseReader;
+    private Receiving receiving;
 
-    public AlphaCommunication(Sending sending, InputStream inputStream) {
+    public AlphaCommunication(Sending sending, Receiving receiving) {
         this.sending = sending;
-
-        responseReader = new ResponseReader(inputStream);
-        new Thread(responseReader).start();
+        this.receiving = receiving;
     }
 
     @Override
@@ -28,7 +25,7 @@ public class AlphaCommunication implements Communication {
         try {
             Message message = payload.toMessage();
             LOG.debug("sending {}, message: \n{}", payload.command(), message);
-            ResponseWaiter waitFor = responseReader.waitFor(payload.command());
+            ResponseWaiter waitFor = receiving.waitFor(payload.command());
             message.send(sending);
             List<Message> responseMessages = waitFor.take();
             LOG.debug("received {}", responseMessages.stream().map(m -> m.toString()).collect(Collectors.joining(",", "[", "]")));
@@ -40,10 +37,15 @@ public class AlphaCommunication implements Communication {
         }
     }
 
+    @Override
+    public void open() throws CommunicationException {
+        receiving.start();
+    }
+
     public void close() throws CommunicationException {
         try {
             sending.close();
-            responseReader.stop();
+            receiving.stop();
         } catch (IOException e) {
             throw new CommunicationException("Error closing connection to robi", e);
         }

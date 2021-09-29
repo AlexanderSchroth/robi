@@ -1,7 +1,8 @@
 package com.alex.robi;
 
 import com.alex.robi.communication.AlphaCommunication;
-import com.alex.robi.communication.AlphaConnection;
+import com.alex.robi.communication.AlphaReciving;
+import com.alex.robi.communication.AlphaSending;
 import com.alex.robi.communication.Communication;
 import com.alex.robi.function.AlphaRobot;
 import com.alex.robi.function.Offset;
@@ -39,8 +40,10 @@ public class TestClient {
         OutputStream outputStream = open3.openOutputStream();
         InputStream inputStream = open3.openInputStream();
 
-        AlphaConnection connection = new AlphaConnection(outputStream);
-        Communication communication = new AlphaCommunication(connection, inputStream);
+        AlphaReciving responseReader = new AlphaReciving(inputStream);
+        AlphaSending connection = new AlphaSending(outputStream);
+        Communication communication = new AlphaCommunication(connection, responseReader);
+        communication.open();
 
         Robot movement = new AlphaRobot(communication);
 

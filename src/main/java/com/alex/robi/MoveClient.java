@@ -1,8 +1,10 @@
 package com.alex.robi;
 
 import com.alex.robi.communication.AlphaCommunication;
-import com.alex.robi.communication.AlphaConnection;
+import com.alex.robi.communication.AlphaReciving;
+import com.alex.robi.communication.AlphaSending;
 import com.alex.robi.communication.Communication;
+import com.alex.robi.communication.Sending;
 import com.alex.robi.function.AlphaRobot;
 import com.alex.robi.function.Robot;
 import java.awt.event.KeyAdapter;
@@ -29,8 +31,11 @@ public class MoveClient {
         OutputStream outputStream = open3.openOutputStream();
         InputStream inputStream = open3.openInputStream();
 
-        AlphaConnection connection = new AlphaConnection(outputStream);
-        Communication communication = new AlphaCommunication(connection, inputStream);
+        AlphaReciving responseReader = new AlphaReciving(inputStream);
+        Sending connection = new AlphaSending(outputStream);
+
+        Communication communication = new AlphaCommunication(connection, responseReader);
+        communication.open();
 
         Robot robot = new AlphaRobot(communication);
         robot.handshake();

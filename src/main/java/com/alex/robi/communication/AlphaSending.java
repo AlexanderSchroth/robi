@@ -3,11 +3,11 @@ package com.alex.robi.communication;
 import java.io.IOException;
 import java.io.OutputStream;
 
-public class AlphaConnection implements Sending {
+public class AlphaSending implements Sending {
 
     private OutputStream outputStream;
 
-    public AlphaConnection(OutputStream outputStream) {
+    public AlphaSending(OutputStream outputStream) {
         this.outputStream = outputStream;
     }
 

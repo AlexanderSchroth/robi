@@ -60,7 +60,7 @@ public class Payload {
             .withCheck(checksum)
             .withParameters(parameters.asArray())
             .withEndCharacter(Message.END_CHARACTER)
-            .builder();
+            .build();
     }
 
     @Override

@@ -176,7 +176,7 @@ public class Message {
             return this;
         }
 
-        public Message builder() {
+        public Message build() {
             return toBuild;
         }
     }

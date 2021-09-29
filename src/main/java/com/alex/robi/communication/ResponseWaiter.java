@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
-public class ResponseWaiter {
+class ResponseWaiter {
     private Command command;
     private BlockingQueue<List<Message>> q;
 
@@ -17,17 +17,18 @@ public class ResponseWaiter {
         this.q = new ArrayBlockingQueue<List<Message>>(1);
     }
 
-    public List<Message> take() throws InterruptedException {
+    List<Message> take() throws InterruptedException {
         return q.take();
     }
 
-    public boolean add(Message m) {
+    void add(Message m) {
         messages.add(m);
-        if (command.expectedResponseMessages() == messages.size()) {
+        if (complete()) {
             q.add(messages);
-            return true;
-        } else {
-            return false;
         }
+    }
+    
+    boolean complete() {
+        return command.expectedResponseMessages() == messages.size();
     }
 }

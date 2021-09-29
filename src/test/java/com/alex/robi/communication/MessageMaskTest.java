@@ -62,7 +62,7 @@ public class MessageMaskTest {
             .withParameters(new int[] { 65, 108, 112, 104, 97, 49, 95, 48, 51, 55, 68 })
             .withCheck(101)
             .withEndCharacter(237)
-            .builder();
+            .build();
         assertThat(messageFromBytes, equalTo(expectedMessage));
     }
 
@@ -77,7 +77,7 @@ public class MessageMaskTest {
             .withParameters(new int[] { 98, 116, 95, 108, 105, 110, 107, 49, 50, 51 })
             .withCheck(185)
             .withEndCharacter(237)
-            .builder();
+            .build();
         assertThat(messageFromBytes, equalTo(expectedMessage));
     }
 

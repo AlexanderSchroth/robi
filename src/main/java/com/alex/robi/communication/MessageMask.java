@@ -95,7 +95,7 @@ class MessageMask {
             .withParameters(parameters().stream().mapToInt(value -> value.value()).toArray())
             .withCheck(check().value())
             .withEndCharacter(endCharacter().value())
-            .builder();
+            .build();
     }
 
     public static Message bytesAsMessage(int[] bytes) {
