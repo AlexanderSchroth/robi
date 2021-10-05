@@ -1,92 +1,129 @@
 package com.alex.robi.communication;
 
-import static com.alex.robi.communication.MessageMask.bytesAsMessage;
-import static java.text.MessageFormat.format;
-
-import java.util.ArrayList;
-import java.util.List;
+import com.alex.robi.communication.Message.Builder;
+import java.text.MessageFormat;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 class MessageProducer {
-    private boolean commandHeader1Received = false;
-    private boolean commandHeader2Received = false;
-    private boolean endCommandReceived = false;
 
-    private int header1ExpectedValue;
-    private int header2ExpectedValue;
-    private int endCommandExpectedValue;
+    private final static Logger LOG = LoggerFactory.getLogger(MessageProducer.class);
 
-    private List<Integer> partialMessage;
+    private Message.Builder messageBuilder;
     private Consumer<Message> partialMessageConsumer;
+    private IntReceiver current;
 
-    public MessageProducer(int header1ExpectedValue, int header2ExpectedValue, int endCommandExpectedValue, Consumer<Message> partialMessageConsumer) {
-        this.header1ExpectedValue = header1ExpectedValue;
-        this.header2ExpectedValue = header2ExpectedValue;
-        this.endCommandExpectedValue = endCommandExpectedValue;
+    private Map<Read, IntReceiver> receivers;
+
+    public MessageProducer(MessageConsumer partialMessageConsumer) {
         this.partialMessageConsumer = partialMessageConsumer;
 
-        partialMessage = new ArrayList<>();
+        receivers = new HashMap<>();
+        receivers.put(Read.ExpectHeader1, new Header1Receiver());
+        receivers.put(Read.ExpectHeader2, new Header2Receiver());
+        receivers.put(Read.ExpectLength, new LenghReceiver());
+        receivers.put(Read.ExpectCommand, new CommandReceiver());
+        receivers.put(Read.ExpectParameters, new ParameterReceiver());
+        receivers.put(Read.ExpectedCheck, new CheckReceiver());
+        receivers.put(Read.ExpectEndCharater, new EndCharacterReceiver());
+
+        this.messageBuilder = new Message.Builder();
+        this.current = receivers.get(Read.ExpectHeader1);
+    }
+
+    private enum Read {
+        ExpectHeader1, ExpectHeader2, ExpectLength, ExpectCommand, ExpectParameters, ExpectedCheck, ExpectEndCharater
+    }
+
+    public interface MessageConsumer extends Consumer<Message> {
+    }
+
+    private interface IntReceiver {
+        Read read(Message.Builder message, int value);
+    }
+
+    private class Header1Receiver implements IntReceiver {
+        @Override
+        public Read read(Builder message, int value) {
+            if (value == Message.COMMAND_HEADER_1) {
+                message.withCommandHeader1(value);
+                return Read.ExpectHeader2;
+            } else {
+                LOG.warn(MessageFormat.format("{0} but was {1}", Read.ExpectHeader1, value));
+                message.skip();
+                return Read.ExpectHeader1;
+            }
+        }
+    }
+
+    private class Header2Receiver implements IntReceiver {
+        @Override
+        public Read read(Builder message, int value) {
+            if (value == Message.COMMAND_HEADER_2) {
+                message.withCommandHeader2(value);
+                return Read.ExpectLength;
+            } else {
+                LOG.warn(MessageFormat.format("{0} but was {1}", Read.ExpectHeader1, value));
+                return Read.ExpectHeader1;
+            }
+        }
+    }
+
+    private class LenghReceiver implements IntReceiver {
+        @Override
+        public Read read(Builder message, int value) {
+            message.withLength(value);
+            return Read.ExpectCommand;
+        }
+    }
+
+    private class CommandReceiver implements IntReceiver {
+        @Override
+        public Read read(Builder message, int value) {
+            message.withCommand(value);
+            return Read.ExpectParameters;
+        }
+    }
+
+    private class ParameterReceiver implements IntReceiver {
+        @Override
+        public Read read(Builder message, int value) {
+            int remaining = message.addParameter(value);
+            if (remaining == 0) {
+                return Read.ExpectedCheck;
+            } else {
+                return Read.ExpectParameters;
+            }
+        }
+    }
+
+    private class CheckReceiver implements IntReceiver {
+        @Override
+        public Read read(Builder message, int value) {
+            message.withCheck(value);
+            return Read.ExpectEndCharater;
+        }
+    }
+
+    private class EndCharacterReceiver implements IntReceiver {
+        @Override
+        public Read read(Builder message, int value) {
+            if (value == Message.END_CHARACTER) {
+                message.withEndCharacter(value);
+                partialMessageConsumer.accept(message.build());
+            } else {
+                LOG.warn(MessageFormat.format("{0} but was {1}", Read.ExpectedCheck, value));
+            }
+            return Read.ExpectHeader1;
+        }
     }
 
     MessageProducer received(int value) {
-        if (isExpectedHeader1(value)) {
-            commandHeader1Received = true;
-        }
-        if (isExpectedHeader2(value)) {
-            commandHeader2Received = true;
-        }
-        if (isExpectedEndCharacter(value)) {
-            endCommandReceived = true;
-        }
-
-        partialMessage.add(value);
-
-        if (commandHeader1Received && commandHeader2Received && endCommandReceived) {
-            partialMessageConsumer.accept(bytesAsMessage(partialMessageAsIntArray()));
-            reset();
-        }
+        Read nextResponsibleReceiver = current.read(messageBuilder, value);
+        this.current = receivers.get(nextResponsibleReceiver);
         return this;
-    }
-
-    private int[] partialMessageAsIntArray() {
-        return partialMessage.stream()
-            .mapToInt(integer -> integer)
-            .toArray();
-    }
-
-    private boolean isExpectedHeader1(int value) {
-        if (partialMessage.isEmpty()) {
-            if (value == header1ExpectedValue) {
-                return true;
-            } else {
-                throw new IllegalStateException(format("Expect commandHeader1 {0} to be the first int of a message", header1ExpectedValue));
-            }
-        }
-        return false;
-    }
-
-    private boolean isExpectedEndCharacter(int value) {
-        if (value == endCommandExpectedValue) {
-            return true;
-        }
-        return false;
-    }
-
-    private boolean isExpectedHeader2(int value) {
-        if (partialMessage.size() == 1) {
-            if (value == header2ExpectedValue) {
-                return true;
-            } else {
-                throw new IllegalStateException(format("Expect commandHeader2 {0} to be the second int of a message", header2ExpectedValue));
-            }
-        }
-        return false;
-    }
-
-    private void reset() {
-        partialMessage.clear();
-        commandHeader1Received = false;
-        commandHeader2Received = false;
-        endCommandReceived = false;
     }
 }

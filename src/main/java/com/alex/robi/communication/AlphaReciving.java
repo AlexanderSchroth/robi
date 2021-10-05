@@ -1,14 +1,14 @@
 package com.alex.robi.communication;
 
+import com.alex.robi.communication.MessageProducer.MessageConsumer;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class AlphaReciving implements Receiving, Runnable {
+public class AlphaReciving implements Receiving, Runnable, MessageConsumer {
 
     private final static Logger LOG = LoggerFactory.getLogger(AlphaReciving.class);
 
@@ -21,21 +21,20 @@ public class AlphaReciving implements Receiving, Runnable {
     public AlphaReciving(InputStream inputStream) {
         this.inputStream = inputStream;
         this.waiters = new HashMap<>();
-        this.readStage = new MessageProducer(Message.COMMAND_HEADER_1, Message.COMMAND_HEADER_2, Message.END_CHARACTER, received());
+        this.readStage = new MessageProducer(this);
     }
 
-    private Consumer<Message> received() {
-        return message -> {
-            ResponseWaiter responseWaiter = waiters.get(message.command());
-            if (responseWaiter == null) {
-                LOG.debug("No one waits for answer of command {}. Message:{}", message.command(), message);
-            } else {
-                responseWaiter.add(message);
-                if (responseWaiter.complete()) {
-                    waiters.remove(message.command());
-                }
+    @Override
+    public void accept(Message message) {
+        ResponseWaiter responseWaiter = waiters.get(message.command());
+        if (responseWaiter == null) {
+            LOG.debug("No one waits for answer of command {}. Message:{}", message.command(), message);
+        } else {
+            responseWaiter.add(message);
+            if (responseWaiter.complete()) {
+                waiters.remove(message.command());
             }
-        };
+        }
     }
 
     public ResponseWaiter waitFor(Command c) {
@@ -71,7 +70,6 @@ public class AlphaReciving implements Receiving, Runnable {
     private void read() throws IOException {
         int available = inputStream.available();
         int[] b = new int[available];
-
         for (int i = 0; i < b.length; i++) {
             readStage.received(inputStream.read());
         }

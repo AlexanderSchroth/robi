@@ -3,6 +3,8 @@ package com.alex.robi.communication;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.commons.lang3.builder.EqualsBuilder;
@@ -10,13 +12,13 @@ import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class Message {
 
-    private int commandHeader1;
-    private int commandHeader2;
-    private int length;
-    private int command;
-    private int[] parameters;
-    private int check;
-    private int endCharacter;
+    private Parameter commandHeader1;
+    private Parameter commandHeader2;
+    private Parameter length;
+    private Parameter command;
+    private Parameter[] parameters;
+    private Parameter check;
+    private Parameter endCharacter;
 
     public static final int COMMAND_HEADER_1 = 0xFB;
     public static final Parameter PARAMETER_COMMAND_HEADER_1 = Parameter.of(COMMAND_HEADER_1);
@@ -37,16 +39,16 @@ public class Message {
     public void send(Sending connection) throws IOException {
         int[] message = new int[FIXED_PARTS + parameters.length];
         int part = 0;
-        message[part++] = commandHeader1;
-        message[part++] = commandHeader2;
-        message[part++] = length;
-        message[part++] = command;
+        message[part++] = commandHeader1.value();
+        message[part++] = commandHeader2.value();
+        message[part++] = length.value();
+        message[part++] = command.value();
 
         for (int i = 0; i < parameters.length; i++) {
-            message[part++] = parameters[i];
+            message[part++] = parameters[i].value();
         }
-        message[part++] = check;
-        message[part++] = endCharacter;
+        message[part++] = check.value();
+        message[part++] = endCharacter.value();
 
         connection.send(message);
     }
@@ -59,14 +61,11 @@ public class Message {
     }
 
     public Command command() {
-        return Command.findByValue(command);
+        return Command.findByValue(command.value());
     }
 
     private Parameter[] parameters() {
-        return IntStream.of(parameters)
-            .mapToObj(i -> Parameter.of(i))
-            .collect(Collectors.toList())
-            .toArray(new Parameter[0]);
+        return parameters;
     }
 
     @Override
@@ -106,15 +105,15 @@ public class Message {
     public String toString() {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode message = mapper.createObjectNode();
-        message.put("commandHeader1", dump(commandHeader1));
-        message.put("commandHeader2", dump(commandHeader2));
-        message.put("length", dump(length));
-        message.put("command", dump(command));
+        message.put("commandHeader1", commandHeader1.toString());
+        message.put("commandHeader2", commandHeader2.toString());
+        message.put("length", length.toString());
+        message.put("command", command.toString());
         for (int i = 0; i < parameters.length; i++) {
-            message.put("parameter" + i, dump(parameters[i]));
+            message.put("parameter" + i, parameters[i].toString());
         }
-        message.put("check", dump(check));
-        message.put("endCharacter", dump(endCharacter));
+        message.put("check", check.toString());
+        message.put("endCharacter", endCharacter.toString());
         try {
             return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(message);
         } catch (Exception e) {
@@ -122,62 +121,79 @@ public class Message {
         }
     }
 
-    public static String parametersAsString(int[] parameters) {
-        StringBuffer sb = new StringBuffer();
-        for (int intChar : parameters) {
-            sb.append(Character.toChars(intChar));
-        }
-        return sb.toString();
-    }
-
-    public static String dump(int i) {
-        return String.format("0x%1X", i) + ", (int)" + i;
-    }
-
     public static class Builder {
-        private Message toBuild;
+        private Parameter commandHeader1;
+        private Parameter commandHeader2;
+        private Parameter length;
+        private Parameter command;
+        private List<Parameter> parameters;
+        private Parameter check;
+        private Parameter endCharacter;
 
         public Builder() {
-            toBuild = new Message();
+            parameters = new ArrayList<>();
         }
 
         public Builder withEndCharacter(int endCharacter) {
-            toBuild.endCharacter = endCharacter;
+            this.endCharacter = Parameter.of(endCharacter);
             return this;
         }
 
         public Builder withCheck(int check) {
-            toBuild.check = check;
+            this.check = Parameter.of(check);
             return this;
         }
 
         public Builder withParameters(int[] parameters) {
-            toBuild.parameters = parameters;
+            this.parameters = IntStream.of(parameters).mapToObj(Parameter::of).collect(Collectors.toList());
             return this;
         }
 
+        public int addParameter(int parameter) {
+            this.parameters.add(Parameter.of(parameter));
+            return this.length.value() - this.parameters.size() - FIXED_PARTS_ZERO_BASED;
+        }
+
         public Builder withCommandHeader1(int commandHeader1) {
-            toBuild.commandHeader1 = commandHeader1;
+            this.commandHeader1 = Parameter.of(commandHeader1);
             return this;
         }
 
         public Builder withCommandHeader2(int commandHeader2) {
-            toBuild.commandHeader2 = commandHeader2;
+            this.commandHeader2 = Parameter.of(commandHeader2);
             return this;
         }
 
         public Builder withCommand(int command) {
-            toBuild.command = command;
+            this.command = Parameter.of(command);
             return this;
         }
 
         public Builder withLength(int length) {
-            toBuild.length = length;
+            this.length = Parameter.of(length);
             return this;
         }
 
         public Message build() {
-            return toBuild;
+            Message m = new Message();
+            m.commandHeader1 = commandHeader1;
+            m.commandHeader2 = commandHeader2;
+            m.length = length;
+            m.command = command;
+            m.parameters = parameters.toArray(new Parameter[0]);
+            m.check = check;
+            m.endCharacter = endCharacter;
+            return m;
+        }
+
+        public void skip() {
+            this.commandHeader1 = null;
+            this.commandHeader2 = null;
+            this.length = null;
+            this.command = null;
+            this.parameters = new ArrayList<>();
+            this.check = null;
+            this.endCharacter = null;
         }
     }
 }
