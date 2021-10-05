@@ -16,113 +16,113 @@ class MessageProducer {
     private Consumer<Message> partialMessageConsumer;
     private IntReceiver current;
 
-    private Map<Read, IntReceiver> receivers;
+    private Map<ExpectInt, IntReceiver> receivers;
 
     public MessageProducer(MessageConsumer partialMessageConsumer) {
         this.partialMessageConsumer = partialMessageConsumer;
 
         receivers = new HashMap<>();
-        receivers.put(Read.ExpectHeader1, new Header1Receiver());
-        receivers.put(Read.ExpectHeader2, new Header2Receiver());
-        receivers.put(Read.ExpectLength, new LenghReceiver());
-        receivers.put(Read.ExpectCommand, new CommandReceiver());
-        receivers.put(Read.ExpectParameters, new ParameterReceiver());
-        receivers.put(Read.ExpectedCheck, new CheckReceiver());
-        receivers.put(Read.ExpectEndCharater, new EndCharacterReceiver());
+        receivers.put(ExpectInt.Header1, new Header1Receiver());
+        receivers.put(ExpectInt.Header2, new Header2Receiver());
+        receivers.put(ExpectInt.Length, new LenghReceiver());
+        receivers.put(ExpectInt.Command, new CommandReceiver());
+        receivers.put(ExpectInt.Parameters, new ParameterReceiver());
+        receivers.put(ExpectInt.Check, new CheckReceiver());
+        receivers.put(ExpectInt.EndCharater, new EndCharacterReceiver());
 
         this.messageBuilder = new Message.Builder();
-        this.current = receivers.get(Read.ExpectHeader1);
+        this.current = receivers.get(ExpectInt.Header1);
     }
 
-    private enum Read {
-        ExpectHeader1, ExpectHeader2, ExpectLength, ExpectCommand, ExpectParameters, ExpectedCheck, ExpectEndCharater
+    private enum ExpectInt {
+        Header1, Header2, Length, Command, Parameters, Check, EndCharater
     }
 
     public interface MessageConsumer extends Consumer<Message> {
     }
 
     private interface IntReceiver {
-        Read read(Message.Builder message, int value);
+        ExpectInt read(Message.Builder message, int value);
     }
 
     private class Header1Receiver implements IntReceiver {
         @Override
-        public Read read(Builder message, int value) {
+        public ExpectInt read(Builder message, int value) {
             if (value == Message.COMMAND_HEADER_1) {
                 message.withCommandHeader1(value);
-                return Read.ExpectHeader2;
+                return ExpectInt.Header2;
             } else {
-                LOG.warn(MessageFormat.format("{0} but was {1}", Read.ExpectHeader1, value));
+                LOG.warn(MessageFormat.format("{0} but was {1}", ExpectInt.Header1, value));
                 message.skip();
-                return Read.ExpectHeader1;
+                return ExpectInt.Header1;
             }
         }
     }
 
     private class Header2Receiver implements IntReceiver {
         @Override
-        public Read read(Builder message, int value) {
+        public ExpectInt read(Builder message, int value) {
             if (value == Message.COMMAND_HEADER_2) {
                 message.withCommandHeader2(value);
-                return Read.ExpectLength;
+                return ExpectInt.Length;
             } else {
-                LOG.warn(MessageFormat.format("{0} but was {1}", Read.ExpectHeader1, value));
-                return Read.ExpectHeader1;
+                LOG.warn(MessageFormat.format("{0} but was {1}", ExpectInt.Header1, value));
+                return ExpectInt.Header1;
             }
         }
     }
 
     private class LenghReceiver implements IntReceiver {
         @Override
-        public Read read(Builder message, int value) {
+        public ExpectInt read(Builder message, int value) {
             message.withLength(value);
-            return Read.ExpectCommand;
+            return ExpectInt.Command;
         }
     }
 
     private class CommandReceiver implements IntReceiver {
         @Override
-        public Read read(Builder message, int value) {
+        public ExpectInt read(Builder message, int value) {
             message.withCommand(value);
-            return Read.ExpectParameters;
+            return ExpectInt.Parameters;
         }
     }
 
     private class ParameterReceiver implements IntReceiver {
         @Override
-        public Read read(Builder message, int value) {
+        public ExpectInt read(Builder message, int value) {
             int remaining = message.addParameter(value);
             if (remaining == 0) {
-                return Read.ExpectedCheck;
+                return ExpectInt.Check;
             } else {
-                return Read.ExpectParameters;
+                return ExpectInt.Parameters;
             }
         }
     }
 
     private class CheckReceiver implements IntReceiver {
         @Override
-        public Read read(Builder message, int value) {
+        public ExpectInt read(Builder message, int value) {
             message.withCheck(value);
-            return Read.ExpectEndCharater;
+            return ExpectInt.EndCharater;
         }
     }
 
     private class EndCharacterReceiver implements IntReceiver {
         @Override
-        public Read read(Builder message, int value) {
+        public ExpectInt read(Builder message, int value) {
             if (value == Message.END_CHARACTER) {
                 message.withEndCharacter(value);
                 partialMessageConsumer.accept(message.build());
             } else {
-                LOG.warn(MessageFormat.format("{0} but was {1}", Read.ExpectedCheck, value));
+                LOG.warn(MessageFormat.format("{0} but was {1}", ExpectInt.Check, value));
             }
-            return Read.ExpectHeader1;
+            return ExpectInt.Header1;
         }
     }
 
     MessageProducer received(int value) {
-        Read nextResponsibleReceiver = current.read(messageBuilder, value);
+        ExpectInt nextResponsibleReceiver = current.read(messageBuilder, value);
         this.current = receivers.get(nextResponsibleReceiver);
         return this;
     }
