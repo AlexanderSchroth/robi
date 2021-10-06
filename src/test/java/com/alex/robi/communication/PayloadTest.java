@@ -1,5 +1,6 @@
 package com.alex.robi.communication;
 
+import static com.alex.robi.communication.Parameter.of;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -12,13 +13,13 @@ public class PayloadTest {
         Message messageFromPayload = Payload.payload(Command.BTHandshake, Parameter.of(1)).toMessage();
 
         Message expectedMessage = new Message.Builder()
-            .withCommandHeader1(251)
-            .withCommandHeader2(191)
-            .withLength(6)
-            .withCommand(1)
-            .withParameters(new int[] { 1 })
-            .withCheck(8)
-            .withEndCharacter(237)
+            .withCommandHeader1(of(251))
+            .withCommandHeader2(of(191))
+            .withLength(of(6))
+            .withCommand(of(1))
+            .withParameters(of(1))
+            .withCheck(of(8))
+            .withEndCharacter(of(237))
             .build();
 
         assertThat(messageFromPayload, equalTo(expectedMessage));

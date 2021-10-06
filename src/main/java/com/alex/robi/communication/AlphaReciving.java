@@ -25,7 +25,7 @@ public class AlphaReciving implements Receiving, Runnable, MessageConsumer {
     }
 
     @Override
-    public void accept(Message message) {
+    public void finished(Message message) {
         ResponseWaiter responseWaiter = waiters.get(message.command());
         if (responseWaiter == null) {
             LOG.debug("No one waits for answer of command {}. Message:{}", message.command(), message);
@@ -71,7 +71,7 @@ public class AlphaReciving implements Receiving, Runnable, MessageConsumer {
         int available = inputStream.available();
         int[] b = new int[available];
         for (int i = 0; i < b.length; i++) {
-            readStage.received(inputStream.read());
+            readStage.received(Parameter.of(inputStream.read()));
         }
     }
 }

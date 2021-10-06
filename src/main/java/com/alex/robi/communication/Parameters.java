@@ -71,6 +71,10 @@ public class Parameters {
         return parameterNumber(5);
     }
 
+    public List<Parameter> all() {
+        return parameters;
+    }
+
     public String asString() {
         StringBuffer sb = new StringBuffer();
         for (Parameter p : parameters) {

@@ -2,6 +2,7 @@ package com.alex.robi.communication;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 public class Payload {
 
@@ -48,18 +49,33 @@ public class Payload {
             .build();
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj.getClass() != this.getClass()) {
+            return false;
+        }
+        Payload that = (Payload) obj;
+        return new EqualsBuilder()
+            .append(this.command, that.command)
+            .append(this.parameters, that.parameters)
+            .build();
+    }
+
     public Message toMessage() {
         int length = Message.FIXED_PARTS_ZERO_BASED + parameters.lenght();
-        int checksum = Parameters.parameters(Parameter.of(length), command().asParameter(), parameters).checksum().value();
+        Parameter checksum = Parameters.parameters(Parameter.of(length), command().asParameter(), parameters).checksum();
 
         return new Message.Builder()
-            .withCommandHeader1(Message.COMMAND_HEADER_1)
-            .withCommandHeader2(Message.COMMAND_HEADER_2)
-            .withLength(length)
-            .withCommand(command.value())
+            .withCommandHeader1(Message.PARAMETER_COMMAND_HEADER_1)
+            .withCommandHeader2(Message.PARAMETER_COMMAND_HEADER_2)
+            .withLength(Parameter.of(length))
+            .withCommand(command.asParameter())
             .withCheck(checksum)
-            .withParameters(parameters.asArray())
-            .withEndCharacter(Message.END_CHARACTER)
+            .withParameters(parameters)
+            .withEndCharacter(Message.PARAMETER_END_CHARACTER)
             .build();
     }
 

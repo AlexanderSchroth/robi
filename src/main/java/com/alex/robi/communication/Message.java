@@ -4,9 +4,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -20,13 +19,13 @@ public class Message {
     private Parameter check;
     private Parameter endCharacter;
 
-    public static final int COMMAND_HEADER_1 = 0xFB;
+    private static final int COMMAND_HEADER_1 = 0xFB;
     public static final Parameter PARAMETER_COMMAND_HEADER_1 = Parameter.of(COMMAND_HEADER_1);
 
-    public static final int COMMAND_HEADER_2 = 0xBF;
+    private static final int COMMAND_HEADER_2 = 0xBF;
     public static final Parameter PARAMETER_COMMAND_HEADER_2 = Parameter.of(COMMAND_HEADER_2);
 
-    public static final int END_CHARACTER = 0xED;
+    private static final int END_CHARACTER = 0xED;
     public static final Parameter PARAMETER_END_CHARACTER = Parameter.of(END_CHARACTER);
 
     // COMMAND_HEADER_1, COMMAND_HEADER2, LENGHT, COMMAND, CHECK, END_CHARACTER,
@@ -105,19 +104,27 @@ public class Message {
     public String toString() {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode message = mapper.createObjectNode();
-        message.put("commandHeader1", commandHeader1.toString());
-        message.put("commandHeader2", commandHeader2.toString());
-        message.put("length", length.toString());
-        message.put("command", command.toString());
+        message.put("commandHeader1", saveToString(commandHeader1));
+        message.put("commandHeader2", saveToString(commandHeader2));
+        message.put("length", saveToString(length));
+        message.put("command", saveToString(command));
         for (int i = 0; i < parameters.length; i++) {
-            message.put("parameter" + i, parameters[i].toString());
+            message.put("parameter" + i, saveToString(parameters[i]));
         }
-        message.put("check", check.toString());
-        message.put("endCharacter", endCharacter.toString());
+        message.put("check", saveToString(check));
+        message.put("endCharacter", saveToString(endCharacter));
         try {
             return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(message);
         } catch (Exception e) {
             throw new IllegalStateException(e);
+        }
+    }
+
+    private String saveToString(Parameter p) {
+        if (p == null) {
+            return "<null>";
+        } else {
+            return p.toString();
         }
     }
 
@@ -134,43 +141,48 @@ public class Message {
             parameters = new ArrayList<>();
         }
 
-        public Builder withEndCharacter(int endCharacter) {
-            this.endCharacter = Parameter.of(endCharacter);
+        public Builder withEndCharacter(Parameter endCharacter) {
+            this.endCharacter = endCharacter;
             return this;
         }
 
-        public Builder withCheck(int check) {
-            this.check = Parameter.of(check);
+        public Builder withCheck(Parameter check) {
+            this.check = check;
             return this;
         }
 
-        public Builder withParameters(int[] parameters) {
-            this.parameters = IntStream.of(parameters).mapToObj(Parameter::of).collect(Collectors.toList());
+        public Builder withParameters(Parameter... parameters) {
+            this.parameters = Arrays.asList(parameters);
             return this;
         }
 
-        public int addParameter(int parameter) {
-            this.parameters.add(Parameter.of(parameter));
+        public Builder withParameters(Parameters parameters) {
+            this.parameters = parameters.all();
+            return this;
+        }
+
+        public int addParameter(Parameter parameter) {
+            this.parameters.add(parameter);
             return this.length.value() - this.parameters.size() - FIXED_PARTS_ZERO_BASED;
         }
 
-        public Builder withCommandHeader1(int commandHeader1) {
-            this.commandHeader1 = Parameter.of(commandHeader1);
+        public Builder withCommandHeader1(Parameter commandHeader1) {
+            this.commandHeader1 = commandHeader1;
             return this;
         }
 
-        public Builder withCommandHeader2(int commandHeader2) {
-            this.commandHeader2 = Parameter.of(commandHeader2);
+        public Builder withCommandHeader2(Parameter commandHeader2) {
+            this.commandHeader2 = commandHeader2;
             return this;
         }
 
-        public Builder withCommand(int command) {
-            this.command = Parameter.of(command);
+        public Builder withCommand(Parameter command) {
+            this.command = command;
             return this;
         }
 
-        public Builder withLength(int length) {
-            this.length = Parameter.of(length);
+        public Builder withLength(Parameter length) {
+            this.length = length;
             return this;
         }
 
