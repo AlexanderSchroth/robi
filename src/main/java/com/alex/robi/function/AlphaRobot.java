@@ -14,6 +14,7 @@ public class AlphaRobot implements Robot {
 
     public AlphaRobot(Communication communication) {
         this.communication = communication;
+        communication.open();
     }
 
     @Override
@@ -128,5 +129,10 @@ public class AlphaRobot implements Robot {
     @Override
     public void servoIndicators(OnOff onOff) {
         communication.send(Payload.payload(Command.ControllingAllServoIndicator, onOff), message -> "");
+    }
+
+    @Override
+    public void close() throws Exception {
+        communication.close();
     }
 }

@@ -1,18 +1,10 @@
 package com.alex.robi;
 
-import com.alex.robi.communication.AlphaCommunication;
-import com.alex.robi.communication.AlphaReciving;
-import com.alex.robi.communication.AlphaSending;
-import com.alex.robi.communication.Communication;
 import com.alex.robi.function.AlphaRobot;
 import com.alex.robi.function.Offset;
 import com.alex.robi.function.Robot;
 import com.alex.robi.function.Servo;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import javax.microedition.io.Connector;
-import javax.microedition.io.StreamConnection;
 
 public class TestClient {
 
@@ -35,26 +27,12 @@ public class TestClient {
     }
 
     public static void main(String[] args) throws IOException {
-
-        StreamConnection open3 = (StreamConnection) Connector.open("btspp://" + ROBOT + ":6");
-        OutputStream outputStream = open3.openOutputStream();
-        InputStream inputStream = open3.openInputStream();
-
-        AlphaReciving responseReader = new AlphaReciving(inputStream);
-        AlphaSending connection = new AlphaSending(outputStream);
-        Communication communication = new AlphaCommunication(connection, responseReader);
-        communication.open();
-
-        Robot movement = new AlphaRobot(communication);
-
-        try {
+        try (Robot movement = new AlphaRobot(CommunicationFactory.create(ROBOT))) {
             movement.handshake();
             sleep();
             test(movement);
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            communication.close();
         }
     }
 

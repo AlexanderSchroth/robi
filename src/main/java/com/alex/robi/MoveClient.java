@@ -1,10 +1,6 @@
 package com.alex.robi;
 
-import com.alex.robi.communication.AlphaCommunication;
-import com.alex.robi.communication.AlphaReciving;
-import com.alex.robi.communication.AlphaSending;
 import com.alex.robi.communication.Communication;
-import com.alex.robi.communication.Sending;
 import com.alex.robi.function.AlphaRobot;
 import com.alex.robi.function.Robot;
 import java.awt.event.KeyAdapter;
@@ -12,12 +8,8 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
-import javax.microedition.io.Connector;
-import javax.microedition.io.StreamConnection;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 
@@ -26,16 +18,7 @@ public class MoveClient {
     private static String ROBOT = "881B9912037D";
 
     public static void main(String[] args) throws IOException {
-
-        StreamConnection open3 = (StreamConnection) Connector.open("btspp://" + ROBOT + ":6");
-        OutputStream outputStream = open3.openOutputStream();
-        InputStream inputStream = open3.openInputStream();
-
-        AlphaReciving responseReader = new AlphaReciving(inputStream);
-        Sending connection = new AlphaSending(outputStream);
-
-        Communication communication = new AlphaCommunication(connection, responseReader);
-        communication.open();
+        Communication communication = CommunicationFactory.create(ROBOT);
 
         Robot robot = new AlphaRobot(communication);
         robot.handshake();

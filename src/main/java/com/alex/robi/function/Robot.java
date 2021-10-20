@@ -1,6 +1,6 @@
 package com.alex.robi.function;
 
-public interface Robot {
+public interface Robot extends AutoCloseable {
 
     void implementActionList(String name);
 

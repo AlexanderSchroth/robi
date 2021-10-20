@@ -44,8 +44,8 @@ public class AlphaCommunication implements Communication {
 
     public void close() throws CommunicationException {
         try {
-            sending.close();
             receiving.stop();
+            sending.close();
         } catch (IOException e) {
             throw new CommunicationException("Error closing connection to robi", e);
         }
