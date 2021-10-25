@@ -11,4 +11,4 @@ You can use this project to write your own great client. You need to know your A
         }
     }
 ```
-asdf
+The methods on the interface are returning after the robot acknowledge the received message.    
