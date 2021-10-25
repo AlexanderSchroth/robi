@@ -25,4 +25,11 @@ public class PayloadTest {
         assertThat(messageFromPayload, equalTo(expectedMessage));
     }
 
+    @Test
+    void testToString() {
+        Payload payload = Payload.payload(Command.BTHandshake, Parameter.of(1));
+
+        assertThat(payload.toString(), equalTo("{\r\n  \"command\" : \"BTHandshake\",\r\n  \"parameters\" : \"[ \\\"0x1, (int)1\\\" ]\"\r\n}"));
+    }
+
 }

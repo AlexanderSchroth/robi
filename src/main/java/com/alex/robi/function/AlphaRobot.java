@@ -14,7 +14,6 @@ public class AlphaRobot implements Robot {
 
     public AlphaRobot(Communication communication) {
         this.communication = communication;
-        communication.open();
     }
 
     @Override

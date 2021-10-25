@@ -37,14 +37,9 @@ public class AlphaCommunication implements Communication {
         }
     }
 
-    @Override
-    public void open() throws CommunicationException {
-        receiving.start();
-    }
-
     public void close() throws CommunicationException {
         try {
-            receiving.stop();
+            receiving.close();
             sending.close();
         } catch (IOException e) {
             throw new CommunicationException("Error closing connection to robi", e);

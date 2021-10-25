@@ -3,8 +3,8 @@ package com.alex.robi.communication;
 import static java.util.Arrays.asList;
 import static java.util.stream.Collectors.toList;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -37,8 +37,8 @@ public class Parameters {
         return new Parameters(Arrays.asList(params));
     }
 
-    public static Parameters parameters(List<Parameter> params) {
-        return new Parameters(params);
+    public static Parameters empty() {
+        return new Parameters(new ArrayList<>());
     }
 
     public static Parameters parameters(Parameterable... params) {
@@ -49,6 +49,10 @@ public class Parameters {
 
     public Parameter checksum() {
         return Parameter.of(parameters.stream().mapToInt(Parameter::value).sum() & B_1111_1111);
+    }
+
+    public void add(Parameter parameter) {
+        parameters.add(parameter);
     }
 
     public Parameter first() {
@@ -69,10 +73,6 @@ public class Parameters {
 
     public Parameter fifth() {
         return parameterNumber(5);
-    }
-
-    public List<Parameter> all() {
-        return parameters;
     }
 
     public String asString() {
@@ -122,11 +122,16 @@ public class Parameters {
             .build();
     }
 
-    public void toJson(ObjectNode node) {
-        node.put("asString", asString());
-        ArrayNode arrayNode = node.putArray("asInt");
-        for (int v : asArray()) {
-            arrayNode.add(v);
+    @Override
+    public String toString() {
+        ObjectMapper mapper = new ObjectMapper();
+        ArrayNode arrayNode = mapper.createArrayNode();
+        parameters.forEach(p -> arrayNode.add(p.toString()));
+
+        try {
+            return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(arrayNode);
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
         }
     }
 
@@ -135,5 +140,9 @@ public class Parameters {
         return new HashCodeBuilder()
             .append(parameters)
             .toHashCode();
+    }
+
+    public int size() {
+        return parameters.size();
     }
 }

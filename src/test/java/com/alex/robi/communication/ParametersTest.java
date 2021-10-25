@@ -8,7 +8,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.hamcrest.MatcherAssert;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -27,8 +26,28 @@ class ParametersTest {
     }
 
     @Test
+    void testToString() {
+        Parameters parameters = parameters(Parameter.of(0), Parameter.of(1));
+
+        assertThat(parameters.toString(), equalTo("[ \"0x0, (int)0\", \"0x1, (int)1\" ]"));
+    }
+
+    @Test
     void length() {
         assertThat(parameters(Parameter.of(0), Parameter.of(0)).lenght(), equalTo(2));
+    }
+
+    @Test
+    void parameterable() {
+        assertThat(Parameters.parameters(() -> Parameter.NOP_PARAM), equalTo(Parameters.parameters(Parameter.NOP_PARAM)));
+    }
+
+    private class A implements Parameterable {
+        @Override
+        public Parameter asParameter() {
+            // TODO Auto-generated method stub
+            return null;
+        }
     }
 
     @Test
@@ -127,23 +146,23 @@ class ParametersTest {
     class equals {
         @Test
         void wrongType() {
-            MatcherAssert.assertThat(parameters(of(255)).equals(""), is(false));
+            assertThat(parameters(of(255)).equals(""), is(false));
         }
 
         @Test
         void nullValue() {
-            MatcherAssert.assertThat(parameters(of(255)).equals(null), is(false));
+            assertThat(parameters(of(255)).equals(null), is(false));
         }
 
         @Test
         void sameInstance() {
             Parameters p = parameters(of(255));
-            MatcherAssert.assertThat(p.equals(p), is(true));
+            assertThat(p.equals(p), is(true));
         }
 
         @Test
         void equalsT() {
-            MatcherAssert.assertThat(parameters(of(255)).equals(parameters(of(255))), is(true));
+            assertThat(parameters(of(255)).equals(parameters(of(255))), is(true));
         }
     }
 }

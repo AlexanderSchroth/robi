@@ -4,9 +4,7 @@ import java.io.IOException;
 
 public interface Receiving {
 
-    void start();
-
-    void stop() throws IOException;
+    void close() throws IOException;
 
     ResponseWaiter waitFor(Command c);
 }

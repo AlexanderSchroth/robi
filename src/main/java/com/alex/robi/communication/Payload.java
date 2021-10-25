@@ -84,9 +84,7 @@ public class Payload {
         ObjectMapper mapper = new ObjectMapper();
         ObjectNode message = mapper.createObjectNode();
         message.put("command", command.name());
-
-        ObjectNode putObject = message.putObject("parameters");
-        parameters.toJson(putObject);
+        message.put("parameters", parameters.toString());
 
         try {
             return mapper.writerWithDefaultPrettyPrinter().writeValueAsString(message);

@@ -3,9 +3,6 @@ package com.alex.robi.communication;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.apache.commons.lang3.builder.HashCodeBuilder;
 
@@ -15,7 +12,7 @@ public class Message {
     private Parameter commandHeader2;
     private Parameter length;
     private Parameter command;
-    private Parameter[] parameters;
+    private Parameters parameters;
     private Parameter check;
     private Parameter endCharacter;
 
@@ -36,15 +33,16 @@ public class Message {
     }
 
     public void send(Sending connection) throws IOException {
-        int[] message = new int[FIXED_PARTS + parameters.length];
+        int[] message = new int[FIXED_PARTS + parameters.size()];
         int part = 0;
         message[part++] = commandHeader1.value();
         message[part++] = commandHeader2.value();
         message[part++] = length.value();
         message[part++] = command.value();
 
-        for (int i = 0; i < parameters.length; i++) {
-            message[part++] = parameters[i].value();
+        int[] parameterAsIntArray = parameters.asArray();
+        for (int i = 0; i < parameterAsIntArray.length; i++) {
+            message[part++] = parameterAsIntArray[i];
         }
         message[part++] = check.value();
         message[part++] = endCharacter.value();
@@ -55,16 +53,12 @@ public class Message {
     public Payload payload() {
         return new Payload.Builder()
             .withCommand(command())
-            .withParameters(Parameters.parameters(this.parameters()))
+            .withParameters(parameters)
             .build();
     }
 
     public Command command() {
         return Command.findByValue(command.value());
-    }
-
-    private Parameter[] parameters() {
-        return parameters;
     }
 
     @Override
@@ -108,9 +102,7 @@ public class Message {
         message.put("commandHeader2", saveToString(commandHeader2));
         message.put("length", saveToString(length));
         message.put("command", saveToString(command));
-        for (int i = 0; i < parameters.length; i++) {
-            message.put("parameter" + i, saveToString(parameters[i]));
-        }
+        message.put("parameters", parameters.toString());
         message.put("check", saveToString(check));
         message.put("endCharacter", saveToString(endCharacter));
         try {
@@ -133,12 +125,12 @@ public class Message {
         private Parameter commandHeader2;
         private Parameter length;
         private Parameter command;
-        private List<Parameter> parameters;
+        private Parameters parameters;
         private Parameter check;
         private Parameter endCharacter;
 
         public Builder() {
-            parameters = new ArrayList<>();
+            this.parameters = Parameters.empty();
         }
 
         public Builder withEndCharacter(Parameter endCharacter) {
@@ -152,12 +144,12 @@ public class Message {
         }
 
         public Builder withParameters(Parameter... parameters) {
-            this.parameters = Arrays.asList(parameters);
+            this.parameters = Parameters.parameters(parameters);
             return this;
         }
 
         public Builder withParameters(Parameters parameters) {
-            this.parameters = parameters.all();
+            this.parameters = parameters;
             return this;
         }
 
@@ -192,7 +184,7 @@ public class Message {
             m.commandHeader2 = commandHeader2;
             m.length = length;
             m.command = command;
-            m.parameters = parameters.toArray(new Parameter[0]);
+            m.parameters = parameters;
             m.check = check;
             m.endCharacter = endCharacter;
             return m;
@@ -203,7 +195,7 @@ public class Message {
             this.commandHeader2 = null;
             this.length = null;
             this.command = null;
-            this.parameters = new ArrayList<>();
+            this.parameters = null;
             this.check = null;
             this.endCharacter = null;
         }

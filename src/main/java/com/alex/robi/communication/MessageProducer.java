@@ -16,7 +16,7 @@ class MessageProducer {
 
     private Map<ExpectInt, IntReceiver> receivers;
 
-    public MessageProducer(MessageConsumer partialMessageConsumer) {
+    public MessageProducer(MessageConsumer messageConsumer) {
         receivers = new HashMap<>();
         receivers.put(ExpectInt.Header1, new Header1Receiver());
         receivers.put(ExpectInt.Header2, new Header2Receiver());
@@ -24,7 +24,7 @@ class MessageProducer {
         receivers.put(ExpectInt.Command, new CommandReceiver());
         receivers.put(ExpectInt.Parameters, new ParameterReceiver());
         receivers.put(ExpectInt.Check, new CheckReceiver());
-        receivers.put(ExpectInt.EndCharater, new EndCharacterReceiver(partialMessageConsumer));
+        receivers.put(ExpectInt.EndCharater, new EndCharacterReceiver(messageConsumer));
 
         this.messageBuilder = new Message.Builder();
         this.current = receivers.get(ExpectInt.Header1);
@@ -40,8 +40,8 @@ class MessageProducer {
         Header1, Header2, Length, Command, Parameters, Check, EndCharater
     }
 
-    public interface MessageConsumer {
-        void finished(Message message);
+    interface MessageConsumer {
+        void received(Message message);
     }
 
     private interface IntReceiver {
@@ -123,7 +123,7 @@ class MessageProducer {
         public ExpectInt read(Builder message, Parameter value) {
             if (value.equals(Message.PARAMETER_END_CHARACTER)) {
                 message.withEndCharacter(value);
-                messageConsumer.finished(message.build());
+                messageConsumer.received(message.build());
             } else {
                 LOG.warn(MessageFormat.format("Expect {0} but was {1}", ExpectInt.Check, value));
             }

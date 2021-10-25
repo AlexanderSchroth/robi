@@ -59,6 +59,6 @@ class MessageProducerTest {
             .received(Message.PARAMETER_END_CHARACTER);
 
         Message message2 = Payload.payload(Command.BTHandshake, Parameter.NOP_PARAM, Parameter.NOP_PARAM).toMessage();
-        verify(consumer).finished(Mockito.eq(message2));
+        verify(consumer).received(Mockito.eq(message2));
     }
 }

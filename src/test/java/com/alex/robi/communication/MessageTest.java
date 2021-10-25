@@ -68,7 +68,7 @@ class MessageTest {
 
     @Test
     void testHashCode() {
-        assertThat(new Message.Builder().withCheck(of(1)).build().hashCode(), is(667699303));
+        assertThat(new Message.Builder().withCheck(of(1)).build().hashCode(), is(-1064906255));
     }
 
     @Test
@@ -82,7 +82,7 @@ class MessageTest {
             .withCheck(of(6))
             .withEndCharacter(of(7))
             .build().toString(),
-            is("{\r\n  \"commandHeader1\" : \"0x1, (int)1\",\r\n  \"commandHeader2\" : \"0x2, (int)2\",\r\n  \"length\" : \"0x3, (int)3\",\r\n  \"command\" : \"0x4, (int)4\",\r\n  \"parameter0\" : \"0x5, (int)5\",\r\n  \"check\" : \"0x6, (int)6\",\r\n  \"endCharacter\" : \"0x7, (int)7\"\r\n}"));
+            is("{\r\n  \"commandHeader1\" : \"0x1, (int)1\",\r\n  \"commandHeader2\" : \"0x2, (int)2\",\r\n  \"length\" : \"0x3, (int)3\",\r\n  \"command\" : \"0x4, (int)4\",\r\n  \"parameters\" : \"[ \\\"0x5, (int)5\\\" ]\",\r\n  \"check\" : \"0x6, (int)6\",\r\n  \"endCharacter\" : \"0x7, (int)7\"\r\n}"));
     }
 
     @Nested
