@@ -3,12 +3,12 @@ While playing around with an Alpha 1P robot I missed a API to control its moveme
 
 ## usage
 You can use this project to write your own great client. You need to know your Alpha Bluetooth address and do something like this:
-´´´java
+```java
     public static void main(String[] args) throws Exception {
         try (Robot robot = new AlphaRobot(CommunicationFactory.create(ROBOT_ID))) {
             robot.handshake();
             robot.implementActionList("Move Leftward");
         }
     }
-´´´
+```
 asdf
