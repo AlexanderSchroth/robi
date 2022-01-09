@@ -67,9 +67,9 @@ public class AdjustServoClient {
                         if (e.getKeyCode() == KeyEvent.VK_PLUS) {
                             Offset delta = Offset.ZERO;
                             if (e.isShiftDown()) {
-                                delta = delta.increaseOffset(10);
+                                delta = delta.sum(10);
                             } else {
-                                delta = delta.increaseOffset(1);
+                                delta = delta.sum(1);
                             }
                             Offset o = robot.readOffset(currentServo);
                             Offset sum = o.sum(delta);
@@ -79,9 +79,9 @@ public class AdjustServoClient {
                         if (e.getKeyCode() == KeyEvent.VK_MINUS) {
                             Offset delta = Offset.ZERO;
                             if (e.isShiftDown()) {
-                                delta = delta.increaseOffset(-10);
+                                delta = delta.sum(-10);
                             } else {
-                                delta = delta.increaseOffset(-1);
+                                delta = delta.sum(-1);
                             }
                             Offset o = robot.readOffset(currentServo);
                             Offset sum = o.sum(delta);

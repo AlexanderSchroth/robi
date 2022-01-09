@@ -4,6 +4,8 @@ import com.robi.alpha1p.api.communication.Parameter;
 import com.robi.alpha1p.api.communication.Parameters;
 import com.robi.alpha1p.api.communication.Payload;
 import java.util.List;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
 
 public class Offset {
 
@@ -18,7 +20,7 @@ public class Offset {
         this.value = value;
     }
 
-    public Offset increaseOffset(int by) {
+    public Offset sum(int by) {
         return new Offset(value + by);
     }
 
@@ -41,6 +43,27 @@ public class Offset {
 
     Parameter absValue() {
         return Parameter.of(Math.abs(value));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == null) {
+            return false;
+        }
+        if (obj.getClass() != this.getClass()) {
+            return false;
+        }
+        Offset that = (Offset) obj;
+        return new EqualsBuilder()
+            .append(this.value, that.value)
+            .build();
+    }
+
+    @Override
+    public int hashCode() {
+        return new HashCodeBuilder()
+            .append(value)
+            .toHashCode();
     }
 
     public static Offset fromReadOffest(List<Payload> response) {
