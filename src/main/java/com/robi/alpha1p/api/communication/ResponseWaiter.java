@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 class ResponseWaiter {
     private Command command;
@@ -18,7 +19,7 @@ class ResponseWaiter {
     }
 
     List<Message> take() throws InterruptedException {
-        return q.take();
+        return q.poll(1, TimeUnit.MINUTES);
     }
 
     void add(Message m) {

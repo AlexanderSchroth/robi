@@ -44,6 +44,8 @@ public class MoveClient {
             ACTIONS.put(KeyEvent.VK_W, "Move forward");
             ACTIONS.put(KeyEvent.VK_Q, "Turn Left");
             ACTIONS.put(KeyEvent.VK_E, "Turn Right");
+            ACTIONS.put(KeyEvent.VK_1, "1631781723109"); // winken
+            ACTIONS.put(KeyEvent.VK_2, "1472496890903"); // verbeugen
         }
 
         public Console(Robot robot) {

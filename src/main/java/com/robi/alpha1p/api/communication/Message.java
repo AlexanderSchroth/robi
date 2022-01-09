@@ -103,6 +103,7 @@ public class Message {
         message.put("length", saveToString(length));
         message.put("command", saveToString(command));
         message.put("parameters", parameters.toString());
+        message.put("parametersAsStr", parameters.asString());
         message.put("check", saveToString(check));
         message.put("endCharacter", saveToString(endCharacter));
         try {
@@ -190,12 +191,16 @@ public class Message {
             return m;
         }
 
+        public void reset() {
+            skip();
+        }
+
         public void skip() {
             this.commandHeader1 = null;
             this.commandHeader2 = null;
             this.length = null;
             this.command = null;
-            this.parameters = null;
+            this.parameters = Parameters.empty();
             this.check = null;
             this.endCharacter = null;
         }

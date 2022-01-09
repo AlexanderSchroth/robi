@@ -4,10 +4,6 @@ import static com.robi.alpha1p.api.communication.Parameter.of;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.robi.alpha1p.api.communication.Command;
-import com.robi.alpha1p.api.communication.Message;
-import com.robi.alpha1p.api.communication.Parameter;
-import com.robi.alpha1p.api.communication.Payload;
 import org.junit.jupiter.api.Test;
 
 public class PayloadTest {

@@ -9,12 +9,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.robi.alpha1p.api.communication.AlphaCommunication;
-import com.robi.alpha1p.api.communication.Command;
-import com.robi.alpha1p.api.communication.Payload;
-import com.robi.alpha1p.api.communication.Receiving;
-import com.robi.alpha1p.api.communication.ResponseWaiter;
-import com.robi.alpha1p.api.communication.Sending;
 import java.io.IOException;
 import java.util.List;
 import org.junit.jupiter.api.Test;

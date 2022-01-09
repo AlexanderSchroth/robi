@@ -3,7 +3,6 @@ package com.robi.alpha1p.api.communication;
 import static org.hamcrest.CoreMatchers.equalToObject;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.robi.alpha1p.api.communication.AlphaSending;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;

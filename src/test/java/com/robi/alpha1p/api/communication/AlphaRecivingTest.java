@@ -3,12 +3,6 @@ package com.robi.alpha1p.api.communication;
 import static com.robi.alpha1p.api.communication.Parameter.of;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-import com.robi.alpha1p.api.communication.AlphaReciving;
-import com.robi.alpha1p.api.communication.Command;
-import com.robi.alpha1p.api.communication.Message;
-import com.robi.alpha1p.api.communication.Receiving;
-import com.robi.alpha1p.api.communication.ResponseWaiter;
-import com.robi.alpha1p.api.communication.Sending;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import org.hamcrest.Matchers;
@@ -28,7 +22,7 @@ class AlphaRecivingTest {
         .build();
 
     @Test
-    void messageReceived() throws InterruptedException {
+    void messageReceived() throws InterruptedException, IOException {
         ByteArrayInputStream inputStream = new ByteArrayInputStream(new MessageToByteArray(BT_HANDSHAKE_RESPONSE).toByteArray());
 
         Receiving alphaReciving = new AlphaReciving(inputStream);
@@ -36,10 +30,11 @@ class AlphaRecivingTest {
         ResponseWaiter waitFor = alphaReciving.waitFor(Command.BTHandshake);
 
         assertThat(waitFor.take(), Matchers.hasItem(BT_HANDSHAKE_RESPONSE));
+        alphaReciving.close();
     }
 
     @Test
-    void responseWaiterAlreadyRegistered() throws InterruptedException {
+    void responseWaiterAlreadyRegistered() throws InterruptedException, IOException {
         Receiving alphaReciving = new AlphaReciving(new ByteArrayInputStream(new byte[] {}));
 
         alphaReciving.waitFor(Command.BTHandshake);
@@ -47,6 +42,7 @@ class AlphaRecivingTest {
         Assertions.assertThrows(IllegalArgumentException.class, () -> {
             alphaReciving.waitFor(Command.BTHandshake);
         });
+        alphaReciving.close();
     }
 
     private static class MessageToByteArray {

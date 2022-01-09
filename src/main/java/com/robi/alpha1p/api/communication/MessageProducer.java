@@ -70,6 +70,7 @@ class MessageProducer {
                 return ExpectInt.Length;
             } else {
                 LOG.warn(MessageFormat.format("Expect {0} but was {1}", ExpectInt.Header1, value));
+                message.skip();
                 return ExpectInt.Header1;
             }
         }
@@ -124,6 +125,7 @@ class MessageProducer {
             if (value.equals(Message.PARAMETER_END_CHARACTER)) {
                 message.withEndCharacter(value);
                 messageConsumer.received(message.build());
+                message.reset();
             } else {
                 LOG.warn(MessageFormat.format("Expect {0} but was {1}", ExpectInt.Check, value));
             }

@@ -46,6 +46,11 @@ public class AlphaReciving implements Receiving {
 
         @Override
         public void run() {
+            try {
+                Thread.sleep(100);
+            } catch (Exception e) {
+                LOG.error("Error while reading", e);
+            }
             while (run) {
                 try {
                     read();
@@ -54,13 +59,15 @@ public class AlphaReciving implements Receiving {
                     LOG.error("Error while reading", e);
                 }
             }
+            LOG.error("Receiving stopped");
         }
 
         private void read() throws IOException {
             int available = inputStream.available();
             int[] b = new int[available];
             for (int i = 0; i < b.length; i++) {
-                messageProducer.received(Parameter.of(inputStream.read()));
+                Parameter parameter = Parameter.of(inputStream.read());
+                messageProducer.received(parameter);
             }
         }
     }
@@ -78,5 +85,4 @@ public class AlphaReciving implements Receiving {
         run = false;
         inputStream.close();
     }
-
 }

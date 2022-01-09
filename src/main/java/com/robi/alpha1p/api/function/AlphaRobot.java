@@ -4,6 +4,7 @@ import static com.robi.alpha1p.api.communication.Payload.payload;
 
 import com.robi.alpha1p.api.communication.Command;
 import com.robi.alpha1p.api.communication.Communication;
+import com.robi.alpha1p.api.communication.Parameter;
 import com.robi.alpha1p.api.communication.Parameters;
 import com.robi.alpha1p.api.communication.Payload;
 import java.text.MessageFormat;
@@ -72,7 +73,8 @@ public class AlphaRobot implements Robot {
     @Override
     public void implementActionList(String name) {
         communication.send(payload(Command.ImplementingAnActionList, Parameters.asParameters(name)), messages -> {
-            int value = messages.get(0).parameters().first().value();
+            Parameter first = messages.get(0).parameters().first();
+            int value = first.value();
             if (value == 0x00) {
                 return "success";
             } else if (value == 0x01) {
@@ -80,7 +82,7 @@ public class AlphaRobot implements Robot {
             } else if (value == 0x02) {
                 throw new IllegalStateException("low battery");
             } else {
-                throw new IllegalStateException("unkown");
+                throw new IllegalStateException(MessageFormat.format("value {0} unknown", first));
             }
         });
     }
@@ -105,7 +107,7 @@ public class AlphaRobot implements Robot {
 
     @Override
     public void setOffset(Servo servo, Offset offset) throws SetOffsetException {
-        communication.send(payload(Command.ControllingOffsetOfASingleServo, servo.asParameter(), offset.offset1(), offset.offset2()),
+        communication.send(payload(Command.ControllingOffsetOfASingleServo, servo.asParameter(), offset.sign(), offset.absValue()),
             messages -> {
                 int response = messages.get(0).parameters().second().value();
                 if (response == 0X00) {

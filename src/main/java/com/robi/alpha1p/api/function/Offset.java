@@ -7,41 +7,53 @@ import java.util.List;
 
 public class Offset {
 
-    private int offset1;
-    private int offset2;
+    public static Offset ZERO = new Offset(0);
 
-    public Offset(int offset1, int offset2) {
-        this.offset1 = offset1;
-        this.offset2 = offset2;
+    private int value;
+
+    public Offset(int value) {
+        if (value < -255 || value > 255) {
+            throw new IllegalArgumentException("Offset must be in range -255 to 255");
+        }
+        this.value = value;
+    }
+
+    public Offset increaseOffset(int by) {
+        return new Offset(value + by);
+    }
+
+    public Offset sum(Offset other) {
+        return new Offset(other.value + value);
     }
 
     @Override
     public String toString() {
-        return Integer.toString(offset1) + "/" + Integer.toString(offset2);
+        return Integer.toString(value);
     }
 
-    Parameter offset1() {
-        return Parameter.of(offset1);
-    }
-
-    Parameter offset2() {
-        return Parameter.of(offset2);
-    }
-
-    public Parameter[] asParameter() {
-        char sign;
-        if (offset2 < 0) {
-            sign = '-';
+    Parameter sign() {
+        if (value < 0) {
+            return Parameter.of(0);
         } else {
-            sign = '+';
+            return Parameter.of(255);
         }
-        return new Parameter[] { Parameter.of((int) sign), Parameter.of(offset2) };
+    }
+
+    Parameter absValue() {
+        return Parameter.of(Math.abs(value));
     }
 
     public static Offset fromReadOffest(List<Payload> response) {
         Parameters parameters = response.get(0).parameters();
-        int offset1 = parameters.first().value();
-        int offset2 = parameters.second().value();
-        return new Offset(offset1, offset2);
+        int sign = parameters.second().value();
+        int unsignedOffset = parameters.third().value();
+
+        if (sign == 0) {
+            return new Offset(unsignedOffset * -1);
+        } else if (sign == 255) {
+            return new Offset(unsignedOffset * 1);
+        } else {
+            throw new IllegalStateException("Unexpected sign :" + sign);
+        }
     }
 }

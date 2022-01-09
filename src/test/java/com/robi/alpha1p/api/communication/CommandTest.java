@@ -5,7 +5,6 @@ import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.robi.alpha1p.api.communication.Command;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 

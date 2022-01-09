@@ -8,9 +8,6 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.robi.alpha1p.api.communication.Parameter;
-import com.robi.alpha1p.api.communication.Parameterable;
-import com.robi.alpha1p.api.communication.Parameters;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -43,14 +40,6 @@ class ParametersTest {
     @Test
     void parameterable() {
         assertThat(Parameters.parameters(() -> Parameter.NOP_PARAM), equalTo(Parameters.parameters(Parameter.NOP_PARAM)));
-    }
-
-    private class A implements Parameterable {
-        @Override
-        public Parameter asParameter() {
-            // TODO Auto-generated method stub
-            return null;
-        }
     }
 
     @Test
