@@ -1,8 +1,10 @@
 package com.robi.alpha1p.api.communication;
 
 import static com.robi.alpha1p.api.communication.Parameter.of;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 
 import org.junit.jupiter.api.Test;
 
@@ -29,7 +31,8 @@ public class PayloadTest {
     void testToString() {
         Payload payload = Payload.payload(Command.BTHandshake, Parameter.of(1));
 
-        assertThat(payload.toString(), equalTo("{\r\n  \"command\" : \"BTHandshake\",\r\n  \"parameters\" : \"[ \\\"0x1, (int)1\\\" ]\"\r\n}"));
+        assertThat(payload.toString(), allOf(
+            containsString("\"command\" : \"BTHandshake\""),
+            containsString("\"parameters\" : \"[ \\\"0x1, (int)1\\\" ]\"")));
     }
-
 }

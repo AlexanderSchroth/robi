@@ -1,9 +1,11 @@
 package com.robi.alpha1p.api.communication;
 
 import static com.robi.alpha1p.api.communication.Parameter.of;
+import static org.hamcrest.CoreMatchers.allOf;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.containsString;
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 import com.robi.alpha1p.api.communication.Message.Builder;
@@ -82,15 +84,15 @@ class MessageTest {
             .withCheck(of(6))
             .withEndCharacter(of(7))
             .build().toString(),
-            is("{\r\n  "
-                + "\"commandHeader1\" : \"0x1, (int)1\",\r\n  "
-                + "\"commandHeader2\" : \"0x2, (int)2\",\r\n  "
-                + "\"length\" : \"0x3, (int)3\",\r\n  "
-                + "\"command\" : \"0x4, (int)4\",\r\n  "
-                + "\"parameters\" : \"[ \\\"0x5, (int)5\\\" ]\",\r\n  "
-                + "\"parametersAsStr\" : \"\\u0005\",\r\n  "
-                + "\"check\" : \"0x6, (int)6\",\r\n  "
-                + "\"endCharacter\" : \"0x7, (int)7\"\r\n}"));
+            allOf(
+                containsString("\"commandHeader1\" : \"0x1, (int)1\""),
+                containsString("\"commandHeader2\" : \"0x2, (int)2\""),
+                containsString("\"length\" : \"0x3, (int)3\""),
+                containsString("\"command\" : \"0x4, (int)4\""),
+                containsString("\"parameters\" : \"[ \\\"0x5, (int)5\\\" ]\""),
+                containsString("\"parametersAsStr\" : \"\\u0005\""),
+                containsString("\"check\" : \"0x6, (int)6\""),
+                containsString("\"endCharacter\" : \"0x7, (int)7")));
     }
 
     @Nested
