@@ -3,7 +3,6 @@ package com.robi.alpha1p.api.function;
 import com.robi.alpha1p.api.communication.Parameter;
 import com.robi.alpha1p.api.communication.Payload;
 import java.text.MessageFormat;
-import java.util.List;
 
 public enum TfCardInsertion {
 
@@ -16,8 +15,7 @@ public enum TfCardInsertion {
         this.parameter = value;
     }
 
-    public static TfCardInsertion fromRobotState(List<Payload> response) {
-        Payload payload = response.get(4);
+    public static TfCardInsertion fromRobotState(Payload payload) {
         if (!payload.parameters().first().equals(FLAG)) {
             throw new IllegalArgumentException("Wrong message?!?");
         }

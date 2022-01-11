@@ -2,7 +2,6 @@ package com.robi.alpha1p.api.function;
 
 import com.robi.alpha1p.api.communication.Parameter;
 import com.robi.alpha1p.api.communication.Payload;
-import java.util.List;
 
 public class Volume {
 
@@ -18,8 +17,7 @@ public class Volume {
         return Integer.toString(value);
     }
 
-    public static Volume fromRobotState(List<Payload> response) {
-        Payload payload = response.get(2);
+    public static Volume fromRobotState(Payload payload) {
         if (!payload.parameters().first().equals(FLAG)) {
             throw new IllegalArgumentException("Wrong message?!?");
         }

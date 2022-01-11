@@ -41,11 +41,11 @@ public class AlphaRobot implements Robot {
     public RobotState state() {
         return communication.send(payload(Command.ReadingRobotState), message -> {
             return new RobotState(
-                SoundState.fromRobotStateResponse(message),
-                PlayState.fromRobotStateResponse(message),
-                Volume.fromRobotState(message),
-                ServoIndicateState.fromRobotState(message),
-                TfCardInsertion.fromRobotState(message));
+                SoundState.fromRobotStateResponse(message.get(0)),
+                PlayState.fromRobotStateResponse(message.get(1)),
+                Volume.fromRobotState(message.get(2)),
+                ServoIndicateState.fromRobotState(message.get(3)),
+                TfCardInsertion.fromRobotState(message.get(4)));
         });
     }
 

@@ -3,7 +3,6 @@ package com.robi.alpha1p.api.function;
 import com.robi.alpha1p.api.communication.Parameter;
 import com.robi.alpha1p.api.communication.Payload;
 import java.text.MessageFormat;
-import java.util.List;
 
 public enum PlayState {
 
@@ -16,9 +15,7 @@ public enum PlayState {
         this.paramter = parameter;
     }
 
-    public static PlayState fromRobotStateResponse(List<Payload> response) {
-        Payload payload = response.get(0);
-
+    public static PlayState fromRobotStateResponse(Payload payload) {
         if (!payload.parameters().first().equals(FLAG)) {
             throw new IllegalArgumentException("Wrong message?!?");
         }

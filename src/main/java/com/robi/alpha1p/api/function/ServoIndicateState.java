@@ -4,7 +4,6 @@ import com.robi.alpha1p.api.communication.Parameter;
 import com.robi.alpha1p.api.communication.Parameters;
 import com.robi.alpha1p.api.communication.Payload;
 import java.text.MessageFormat;
-import java.util.List;
 
 public enum ServoIndicateState {
 
@@ -17,8 +16,8 @@ public enum ServoIndicateState {
         this.parameter = value;
     }
 
-    public static ServoIndicateState fromRobotState(List<Payload> payload) {
-        Parameters parameters = payload.get(3).parameters();
+    public static ServoIndicateState fromRobotState(Payload payload) {
+        Parameters parameters = payload.parameters();
         if (!parameters.first().equals(FLAG)) {
             throw new IllegalArgumentException("Wrong message?!?");
         }
