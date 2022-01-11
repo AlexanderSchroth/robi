@@ -26,6 +26,13 @@ class ParametersTest {
     }
 
     @Test
+    void testAsArray() {
+        Parameters parameters = parameters(Parameter.of(0), Parameter.of(1));
+
+        assertThat(parameters.asArray(), equalTo(new int[] { 0, 1 }));
+    }
+
+    @Test
     void testToString() {
         Parameters parameters = parameters(Parameter.of(0), Parameter.of(1));
 
