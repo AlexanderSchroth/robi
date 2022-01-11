@@ -39,13 +39,13 @@ public class AlphaRobot implements Robot {
 
     @Override
     public RobotState state() {
-        return communication.send(payload(Command.ReadingRobotState), message -> {
+        return communication.send(payload(Command.ReadingRobotState), messages -> {
             return new RobotState(
-                SoundState.fromRobotStateResponse(message.get(0)),
-                PlayState.fromRobotStateResponse(message.get(1)),
-                Volume.fromRobotState(message.get(2)),
-                ServoIndicateState.fromRobotState(message.get(3)),
-                TfCardInsertion.fromRobotState(message.get(4)));
+                SoundState.fromRobotStateResponse(messages.get(0)),
+                PlayState.fromRobotStateResponse(messages.get(1)),
+                Volume.fromRobotState(messages.get(2)),
+                ServoIndicateState.fromRobotState(messages.get(3)),
+                TfCardInsertion.fromRobotState(messages.get(4)));
         });
     }
 
